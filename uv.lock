@@ -143,6 +143,7 @@ dev = [
     { name = "langchain-openai" },
     { name = "llama-index" },
     { name = "openai" },
+    { name = "rich" },
 ]
 
 [package.metadata]
@@ -156,6 +157,7 @@ dev = [
     { name = "langchain-openai", specifier = ">=0.3.11" },
     { name = "llama-index", specifier = ">=0.12.26" },
     { name = "openai", specifier = ">=1.68.2" },
+    { name = "rich", specifier = ">=13.9.4" },
 ]
 
 [[package]]
