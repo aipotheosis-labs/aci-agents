@@ -1,12 +1,12 @@
 import json
 import os
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
 from aipolabs import ACI, meta_functions
 from aipolabs.types.functions import FunctionDefinitionFormat
-from aipolabs.utils._logging import create_headline
+from dotenv import load_dotenv
+from openai import OpenAI
+from rich import print as rprint
+from rich.panel import Panel
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
@@ -43,7 +43,7 @@ def main() -> None:
     chat_history: list[dict] = []
 
     while True:
-        print(create_headline("Waiting for LLM Output"))
+        rprint(Panel("Waiting for LLM Output", style="bold blue"))
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -70,14 +70,16 @@ def main() -> None:
             else None
         )
         if content:
-            print(f"{create_headline('LLM Message')} \n {content}")
+            rprint(Panel("LLM Message", style="bold green"))
+            rprint(content)
             chat_history.append({"role": "assistant", "content": content})
 
         # Handle function call if any
         if tool_call:
-            print(
-                f"{create_headline(f'Function Call: {tool_call.function.name}')} \n arguments: {tool_call.function.arguments}"
+            rprint(
+                Panel(f"Function Call: {tool_call.function.name}", style="bold yellow")
             )
+            rprint(f"arguments: {tool_call.function.arguments}")
 
             chat_history.append({"role": "assistant", "tool_calls": [tool_call]})
             result = aci.handle_function_call(
@@ -91,14 +93,19 @@ def main() -> None:
             if tool_call.function.name == meta_functions.ACIGetFunctionDefinition.NAME:
                 tools_retrieved.append(result)
 
-            print(f"{create_headline('Function Call Result')} \n {result}")
+            rprint(Panel("Function Call Result", style="bold magenta"))
+            rprint(result)
             # Continue loop, feeding the result back to the LLM for further instructions
             chat_history.append(
-                {"role": "tool", "tool_call_id": tool_call.id, "content": json.dumps(result)}
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": json.dumps(result),
+                }
             )
         else:
             # If there's no further function call, exit the loop
-            print(create_headline("Task Completed"))
+            rprint(Panel("Task Completed", style="bold green"))
             break
 
 

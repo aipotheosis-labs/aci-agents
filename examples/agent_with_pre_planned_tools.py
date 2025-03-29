@@ -1,12 +1,12 @@
 import json
 import os
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
 from aipolabs import ACI
 from aipolabs.types.functions import FunctionDefinitionFormat
-from aipolabs.utils._logging import create_headline
+from dotenv import load_dotenv
+from openai import OpenAI
+from rich import print as rprint
+from rich.panel import Panel
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
@@ -21,10 +21,12 @@ aci = ACI()
 
 def main() -> None:
     # For a list of all supported apps and functions, please go to the platform.aci.dev
-    brave_search_function_definition = aci.functions.get_definition("BRAVE_SEARCH__WEB_SEARCH")
+    brave_search_function_definition = aci.functions.get_definition(
+        "BRAVE_SEARCH__WEB_SEARCH"
+    )
 
-    print(create_headline("Brave search function definition"))
-    print(brave_search_function_definition)
+    rprint(Panel("Brave search function definition", style="bold blue"))
+    rprint(brave_search_function_definition)
 
     response = openai.chat.completions.create(
         model="gpt-4o",
@@ -48,8 +50,8 @@ def main() -> None:
     )
 
     if tool_call:
-        print(create_headline(f"Tool call: {tool_call.function.name}"))
-        print(f"arguments: {tool_call.function.arguments}")
+        rprint(Panel(f"Tool call: {tool_call.function.name}", style="bold green"))
+        rprint(f"arguments: {tool_call.function.arguments}")
         # submit the selected function and its arguments to aipolabs ACI backend for execution
         result = aci.handle_function_call(
             tool_call.function.name,
@@ -66,7 +68,8 @@ def main() -> None:
             linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
         )
         """
-        print(f"{create_headline('Function Call Result')} \n {result}")
+        rprint(Panel("Function Call Result", style="bold yellow"))
+        rprint(result)
 
 
 if __name__ == "__main__":

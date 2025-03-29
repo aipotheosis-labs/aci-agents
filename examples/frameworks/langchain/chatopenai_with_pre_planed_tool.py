@@ -1,11 +1,11 @@
 import os
 
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-
 from aipolabs import ACI
 from aipolabs.types.functions import FunctionDefinitionFormat
-from aipolabs.utils._logging import create_headline
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from rich import print as rprint
+from rich.panel import Panel
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
@@ -18,18 +18,20 @@ def main() -> None:
     github_star_repository_function_definition = aci.functions.get_definition(
         "GITHUB__STAR_REPOSITORY"
     )
-    print(create_headline("Github star repository function definition"))
-    print(github_star_repository_function_definition)
+    rprint(Panel("Github star repository function definition", style="bold blue"))
+    rprint(github_star_repository_function_definition)
 
     llm = ChatOpenAI(model="gpt-4o-mini")
     llm_with_tools = llm.bind_tools([github_star_repository_function_definition])
-    response = llm_with_tools.invoke("Star the repo https://github.com/aipotheosis-labs/aipolabs-python")
+    response = llm_with_tools.invoke(
+        "Star the repo https://github.com/aipotheosis-labs/aipolabs-python"
+    )
 
     tool_call = response.tool_calls[0] if response.tool_calls else None
 
     if tool_call:
-        print(create_headline(f"Tool call: {tool_call['name']}"))
-        print(f"arguments: {tool_call['args']}")
+        rprint(Panel(f"Tool call: {tool_call['name']}", style="bold yellow"))
+        rprint(f"arguments: {tool_call['args']}")
 
         result = aci.handle_function_call(
             tool_call["name"],
@@ -38,7 +40,8 @@ def main() -> None:
             format=FunctionDefinitionFormat.OPENAI,
         )
 
-        print(f"{create_headline('Function Call Result')} \n {result}")
+        rprint(Panel("Function Call Result", style="bold magenta"))
+        rprint(result)
 
 
 if __name__ == "__main__":

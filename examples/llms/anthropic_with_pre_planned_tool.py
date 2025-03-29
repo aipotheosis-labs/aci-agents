@@ -1,12 +1,12 @@
 import os
 
 import anthropic
+from aipolabs import ACI
+from aipolabs.types.functions import FunctionDefinitionFormat
 from anthropic.types.content_block import TextBlock, ToolUseBlock
 from dotenv import load_dotenv
-
-from aipolabs._client import ACI
-from aipolabs.types.functions import FunctionDefinitionFormat
-from aipolabs.utils._logging import create_headline
+from rich import print as rprint
+from rich.panel import Panel
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
@@ -19,8 +19,8 @@ def main() -> None:
     github_get_user_function_definition = aci.functions.get_definition(
         "GITHUB__GET_USER", format=FunctionDefinitionFormat.ANTHROPIC
     )
-    print(create_headline("Github get user function definition"))
-    print(github_get_user_function_definition)
+    rprint(Panel("Github get user function definition", style="bold blue"))
+    rprint(github_get_user_function_definition)
 
     client = anthropic.Anthropic()
 
@@ -42,11 +42,11 @@ def main() -> None:
 
     for content_block in response.content:
         if isinstance(content_block, TextBlock):
-            print(create_headline("LLM Response"))
-            print(content_block.text)
+            rprint(Panel("LLM Response", style="bold green"))
+            rprint(content_block.text)
         elif isinstance(content_block, ToolUseBlock):
-            print(create_headline(f"Tool call: {content_block.name}"))
-            print(f"arguments: {content_block.input}")
+            rprint(Panel(f"Tool call: {content_block.name}", style="bold yellow"))
+            rprint(f"arguments: {content_block.input}")
 
             result = aci.handle_function_call(
                 content_block.name,
@@ -55,7 +55,8 @@ def main() -> None:
                 format=FunctionDefinitionFormat.ANTHROPIC,
             )
 
-            print(f"{create_headline('Function Call Result')} \n {result}")
+            rprint(Panel("Function Call Result", style="bold magenta"))
+            rprint(result)
 
 
 if __name__ == "__main__":

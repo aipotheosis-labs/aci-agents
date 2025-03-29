@@ -6,26 +6,20 @@ from aipolabs.types.functions import FunctionDefinitionFormat
 from crewai import Agent, Task
 from crewai.tools import tool
 from dotenv import load_dotenv
-from rich.console import Console
+from rich import print as rprint
 from rich.panel import Panel
-from rich.pretty import Pretty
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
-console = Console()
-
 
 @tool
 def github_star_repository(owner: str, repo: str) -> str:
     """Star a GitHub repository by providing the owner and repo name"""
-    console.print(
-        Panel(
-            f"[bold blue]Function Call:[/bold blue] github_star_repo\n[bold green]Parameters:[/bold green] owner = {owner}, repo = {repo}"
-        )
-    )
+    rprint(Panel("Function Call: github_star_repo", style="bold yellow"))
+    rprint(f"Parameters: owner = {owner}, repo = {repo}")
     aci = ACI()
 
     result = aci.handle_function_call(
@@ -34,7 +28,8 @@ def github_star_repository(owner: str, repo: str) -> str:
         linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
         format=FunctionDefinitionFormat.ANTHROPIC,
     )
-    console.print(Panel(Pretty(result), title="[bold green]Result[/bold green]"))
+    rprint(Panel("Function Call Result", style="bold magenta"))
+    rprint(result)
     return json.dumps(result)
 
 
@@ -54,7 +49,7 @@ def main() -> None:
     )
 
     response = agent.execute_task(task)
-    print(response)
+    rprint(response)
 
 
 if __name__ == "__main__":
