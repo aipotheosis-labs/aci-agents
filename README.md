@@ -3,42 +3,68 @@
 AI agents built with ACI.dev along with many examples of how to use ACI.dev with
 different LLMs and agent frameworks such as langchain, CrewAI, Llama Index, etc.
 
-## Examples
 
-The [examples](./examples/) directory contains example implementations demonstrating different approaches to using the Aipolabs ACI Python SDK with LLM agents.
+## Patterns
 
-### 1. Agent with Pre-planned Functions
+There are **2 main patterns** for building agents with Aipolabs ACI, regardless of the LLM or framework used.  
+The second pattern includes **2 sub-patterns** based on how tools are discovered and used.
 
-[agent_with_pre_planned_tools.py](./examples/agent_with_pre_planned_tools.py)
 
-This example demonstrates the simplest way to use Aipolabs ACI functions with an LLM agent. It:
+### 1. Agent with Pre-planned Tools (Static Tools)
 
-- Pre-selects specific functions by developers before the conversation
+- **Suitable for**: When the tools needed are limited and known beforehand  
+- **Example**: [`agent_with_pre_planned_tools.py`](./examples/openai/agent_with_pre_planned_tools.py)
 
-### 2. Agent with Dynamic Function Discovery and Fixed Tools
 
-[agent_with_dynamic_function_discovery_and_fixed_tools.py](./examples/agent_with_dynamic_function_discovery_and_fixed_tools.py)
+### 2. Agent with Dynamic Tool Discovery and Execution
 
-- Use all 4 meta functions (ACI_SEARCH_APPS, ACI_SEARCH_FUNCTIONS, ACI_GET_FUNCTION_DEFINITION, ACI_EXECUTE_FUNCTION)
+- **Suitable for**: When many tools are needed and/or tools are not known ahead of time
+- **Example 2.1**: [`agent_with_dynamic_tool_discovery_pattern_1.py`](./examples/openai/agent_with_dynamic_tool_discovery_pattern_1.py)
+- **Example 2.2**: [`agent_with_dynamic_tool_discovery_pattern_2.py`](./examples/openai/agent_with_dynamic_tool_discovery_pattern_2.py)
 
-### 3. Agent with Dynamic Function Discovery and Dynamic Tools
 
-[agent_with_dynamic_function_discovery_and_dynamic_tools.py](./examples/agent_with_dynamic_function_discovery_and_dynamic_tools.py)
 
-- Use 3 meta functions (ACI_SEARCH_APPS, ACI_SEARCH_FUNCTIONS, ACI_GET_FUNCTION_DEFINITION)
+#### 2.1 Tool List Expansion Approach
 
-### Examples with different LLMs and Frameworks
+With this approach, you:
+- Use 3 meta functions (tools):  
+  `ACI_SEARCH_APPS`, `ACI_SEARCH_FUNCTIONS`, `ACI_GET_FUNCTION_DEFINITION`
+- Use meta functions (tools) to search for and retrieve tool definitions
+- Add discovered tools directly to the LLM's tool list
+- Allow the LLM to invoke these discovered tools directly by name
 
-- Anthropic: [anthropic_with_pre_planned_tool.py](./examples/llms/anthropic_with_pre_planned_tool.py)
-- CrewAI: [crewai_with_pre_planned_tool.py](./examples/frameworks/crewai/crewai_with_pre_planned_tool.py)
-- LangChain: [chatopenai_with_pre_planed_tool.py](./examples/frameworks/langchain/chatopenai_with_pre_planed_tool.py)
-- Llama Index: [llamaindex_with_pre_planned_tool.py](./examples/frameworks/llamaindex/llamaindex_with_pre_planned_tool.py)
+**Key implementation points:**
+- Maintain a `tools_retrieved` list that dynamically adds/removes tools as they are discovered or abandoned
+- When `ACI_GET_FUNCTION_DEFINITION` returns a tool, add it to this list
+- Pass both meta functions (tools) and discovered tools to the model in each request
+- The LLM calls discovered tools by name (e.g., `BRAVE_SEARCH__WEB_SEARCH`)
 
-## Key Differences Between example 2 and 3
 
-- In example 2, the retrieved function definition (e.g., `BRAVE_SEARCH__WEB_SEARCH`) is fed directly to the LLM as chat text, and the LLM generates function arguments based on the function definition and then generates a `ACI_EXECUTE_FUNCTION` function call.
+#### 2.2 Tool Definition as Text Context Approach
 
-- In example 3, the retrieved function definition is stored in the `tools_retrieved` list, and can be dynamically appended to or removed from the LLM's tool list. The LLM will generate a direct function call that matches the retrieved function. (e.g., `BRAVE_SEARCH__WEB_SEARCH`)
+With this approach, you:
+
+- Use 4 meta functions (tools):  
+  `ACI_SEARCH_APPS`, `ACI_SEARCH_FUNCTIONS`, `ACI_GET_FUNCTION_DEFINITION`, `ACI_EXECUTE_FUNCTION`
+- Use meta functions (tools) to retrieve tool definitions
+- Present those definitions to the LLM as **text content**
+- The LLM uses `ACI_EXECUTE_FUNCTION` to execute these tools **indirectly**
+
+**Key implementation points:**
+- Only include meta functions (tools) in the LLM's tool list
+- Share tool definitions as chat content
+- The LLM reads the tool definition to generate appropriate arguments
+- The LLM calls `ACI_EXECUTE_FUNCTION` with the tool name and arguments
+
+
+### 🔁 **Execution Flow Comparison**
+
+| Pattern | Approach | Flow |
+|--------|----------|------|
+| **1** | Pre-planned tools | `Define Tools in tools list → Direct Tool Call` |
+| **2.1** | Tool List Expansion | `Search → Get Tool Definition → Add to Tools → Direct Tool Call` |
+| **2.2** | Text Context Execution | `Search → Get Tool Definition → Add to Text Context → Call via Meta Function` |
+
 
 ## Running the examples
 
