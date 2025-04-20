@@ -1,7 +1,7 @@
 import os
 
-from aipolabs import ACI
-from aipolabs.types.functions import FunctionDefinitionFormat
+from aci import ACI
+from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from rich import print as rprint
@@ -24,7 +24,7 @@ def main() -> None:
     llm = ChatOpenAI(model="gpt-4o-mini")
     llm_with_tools = llm.bind_tools([github_star_repository_function_definition])
     response = llm_with_tools.invoke(
-        "Star the repo https://github.com/aipotheosis-labs/aipolabs-python"
+        "Star the repo https://github.com/aipotheosis-labs/aci-python-sdk"
     )
 
     tool_call = response.tool_calls[0] if response.tool_calls else None

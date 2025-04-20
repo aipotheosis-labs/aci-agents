@@ -2,8 +2,8 @@ import asyncio
 import json
 import os
 
-from aipolabs._client import ACI
-from aipolabs.types.functions import FunctionDefinitionFormat
+from aci import ACI
+from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from llama_index.core.agent.workflow import FunctionAgent
 from llama_index.llms.openai import OpenAI
@@ -41,7 +41,7 @@ async def main() -> None:
     )
 
     response = await agent.run(
-        "Star the repo https://github.com/aipotheosis-labs/aipolabs-python"
+        "Star the repo https://github.com/aipotheosis-labs/aci-python-sdk"
     )
     rprint(response)
 

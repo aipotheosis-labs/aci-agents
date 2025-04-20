@@ -1,8 +1,8 @@
 import json
 import os
 
-from aipolabs import ACI, meta_functions
-from aipolabs.types.functions import FunctionDefinitionFormat
+from aci import ACI, meta_functions
+from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from openai import OpenAI
 from rich import print as rprint

@@ -1,8 +1,8 @@
 import json
 import os
 
-from aipolabs._client import ACI
-from aipolabs.types.functions import FunctionDefinitionFormat
+from aci import ACI
+from aci.types.functions import FunctionDefinitionFormat
 from crewai import Agent, Task
 from crewai.tools import tool
 from dotenv import load_dotenv
@@ -44,7 +44,7 @@ def main() -> None:
     )
 
     task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aipolabs-python",
+        description="Star the repo https://github.com/aipotheosis-labs/aci-python-sdk",
         expected_output="The result of the star operation from the GitHub API",
     )
 
