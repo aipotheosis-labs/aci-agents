@@ -40,9 +40,7 @@ async def main() -> None:
         system_prompt="You are a helpful assistant that can use available tools to help the user.",
     )
 
-    response = await agent.run(
-        "Star the repo https://github.com/aipotheosis-labs/aci-python-sdk"
-    )
+    response = await agent.run("Star the repo https://github.com/aipotheosis-labs/aci")
     rprint(response)
 
 

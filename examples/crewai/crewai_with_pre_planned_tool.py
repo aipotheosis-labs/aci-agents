@@ -44,7 +44,7 @@ def main() -> None:
     )
 
     task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aci-python-sdk",
+        description="Star the repo https://github.com/aipotheosis-labs/aci",
         expected_output="The result of the star operation from the GitHub API",
     )
 

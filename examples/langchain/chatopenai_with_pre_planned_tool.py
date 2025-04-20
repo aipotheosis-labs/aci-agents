@@ -24,7 +24,7 @@ def main() -> None:
     llm = ChatOpenAI(model="gpt-4o-mini")
     llm_with_tools = llm.bind_tools([github_star_repository_function_definition])
     response = llm_with_tools.invoke(
-        "Star the repo https://github.com/aipotheosis-labs/aci-python-sdk"
+        "Star the repo https://github.com/aipotheosis-labs/aci"
     )
 
     tool_call = response.tool_calls[0] if response.tool_calls else None
