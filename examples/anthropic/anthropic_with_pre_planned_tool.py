@@ -1,8 +1,8 @@
 import os
 
 import anthropic
-from aipolabs import ACI
-from aipolabs.types.functions import FunctionDefinitionFormat
+from aci import ACI
+from aci.types.functions import FunctionDefinitionFormat
 from anthropic.types.content_block import TextBlock, ToolUseBlock
 from dotenv import load_dotenv
 from rich import print as rprint
