@@ -1,7 +1,8 @@
 import json
 import os
 
-from aci import ACI, meta_functions
+from aci import ACI
+from aci.meta_functions import ACISearchFunctions, ACIExecuteFunction
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -15,25 +16,20 @@ if not LINKED_ACCOUNT_OWNER_ID:
 
 # gets OPENAI_API_KEY from your environment variables
 openai = OpenAI()
-# gets AIPOLABS_ACI_API_KEY from your environment variables
+# gets ACI_API_KEY from your environment variables
 aci = ACI()
 
 prompt = (
-    "You are a helpful assistant with access to a unlimited number of tools via four meta functions: "
-    "ACI_SEARCH_APPS, ACI_SEARCH_FUNCTIONS, ACI_GET_FUNCTION_DEFINITION, and ACI_EXECUTE_FUNCTION."
-    "You can use ACI_SEARCH_APPS to find relevant apps (which include a set of functions), if you find Apps that might help with your tasks you can use ACI_SEARCH_FUNCTIONS to find relevant functions within certain apps."
-    "You can also use ACI_SEARCH_FUNCTIONS directly to find relevant functions across all apps."
-    "Once you have identified the function you need to use, you can use ACI_GET_FUNCTION_DEFINITION to get the definition of the function."
-    "You can then use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
-    "So the typical order is ACI_SEARCH_APPS -> ACI_SEARCH_FUNCTIONS -> ACI_GET_FUNCTION_DEFINITION -> ACI_EXECUTE_FUNCTION."
+    "You are a helpful assistant with access to a unlimited number of tools via some meta functions: "
+    "ACI_SEARCH_FUNCTIONS, and ACI_EXECUTE_FUNCTION."
+    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps. Try to limit the number of results per request to 1."
+    "Once you have identified the function you need to use, you can use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
 )
 
 # aipolabs meta functions for the LLM to discover the available executale functions dynamically
 tools_meta = [
-    meta_functions.ACISearchApps.SCHEMA,
-    meta_functions.ACISearchFunctions.SCHEMA,
-    meta_functions.ACIGetFunctionDefinition.SCHEMA,
-    meta_functions.ACIExecuteFunction.SCHEMA,
+    ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
+    ACIExecuteFunction.to_json_schema(FunctionDefinitionFormat.OPENAI),
 ]
 
 
@@ -44,7 +40,7 @@ def main() -> None:
     while True:
         rprint(Panel("Waiting for LLM Output", style="bold blue"))
         response = openai.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4.1",
             messages=[
                 {
                     "role": "system",

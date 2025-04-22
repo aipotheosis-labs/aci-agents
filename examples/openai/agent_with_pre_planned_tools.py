@@ -15,7 +15,7 @@ if not LINKED_ACCOUNT_OWNER_ID:
 
 # gets OPENAI_API_KEY from your environment variables
 openai = OpenAI()
-# gets AIPOLABS_ACI_API_KEY from your environment variables
+# gets ACI_API_KEY from your environment variables
 aci = ACI()
 
 

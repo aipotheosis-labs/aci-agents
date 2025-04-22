@@ -10,8 +10,47 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "aci-agents"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "aci-sdk" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "anthropic" },
+    { name = "crewai" },
+    { name = "dotenv" },
+    { name = "langchain" },
+    { name = "langchain-openai" },
+    { name = "llama-index" },
+    { name = "mypy" },
+    { name = "openai" },
+    { name = "rich" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "aci-sdk", specifier = ">=1.0.0b1" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "anthropic", specifier = ">=0.49.0" },
+    { name = "crewai", specifier = ">=0.108.0" },
+    { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "langchain", specifier = ">=0.3.21" },
+    { name = "langchain-openai", specifier = ">=0.3.11" },
+    { name = "llama-index", specifier = ">=0.12.26" },
+    { name = "mypy", specifier = ">=1.15.0" },
+    { name = "openai", specifier = ">=1.68.2" },
+    { name = "rich", specifier = ">=13.9.4" },
+    { name = "ruff", specifier = ">=0.11.2" },
+]
+
+[[package]]
 name = "aci-sdk"
-version = "0.0.2b3"
+version = "1.0.0b1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "griffe" },
@@ -20,9 +59,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/3f/83e4b1b58efd02dbca0146d47ecb14bf2a797c6dd5a877b25f8ce5533caf/aci_sdk-0.0.2b3.tar.gz", hash = "sha256:be2174b8e18d75e03d3a3df4ba397cd904bd24f749d4ac4f5ac4a6f82c734cbc", size = 56613 }
+sdist = { url = "https://files.pythonhosted.org/packages/71/9d/0d956545331ac6760af30a7bc6492083a84b32f16faa89f28ee269a83dac/aci_sdk-1.0.0b1.tar.gz", hash = "sha256:9130bf196c680deda2004d71b091883bc468ea1649d71dbf676b9172c067d4ef", size = 63449 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/65/74/f49182081d98a0e46c6c915a64e885fb4e9601196bf2da43f8a35cc7f701/aci_sdk-0.0.2b3-py3-none-any.whl", hash = "sha256:d0dc90fabc266642eba507ed50457a8b33693218541f99af88e8be58ffd7de87", size = 32190 },
+    { url = "https://files.pythonhosted.org/packages/e2/57/2f1cfb3ee6a84e355a09dd94a4c3c5d1dbe9dbb925950c6903cb8ef2a216/aci_sdk-1.0.0b1-py3-none-any.whl", hash = "sha256:f3d9f3de58c518ecf4fc44ebedf1e4a1e23a30df268782989d1ce8852bd47175", size = 31713 },
 ]
 
 [[package]]
@@ -126,45 +165,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ba/b5/6d55e80f6d8a08ce22b982eafa278d823b541c925f11ee774b0b9c43473d/aiosignal-1.3.2.tar.gz", hash = "sha256:a8c255c66fafb1e499c9351d0bf32ff2d8a0321595ebac3b93713656d2436f54", size = 19424 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/6a/bc7e17a3e87a2985d3e8f4da4cd0f481060eb78fb08596c42be62c90a4d9/aiosignal-1.3.2-py2.py3-none-any.whl", hash = "sha256:45cde58e409a301715980c2b01d0c28bdde3770d8290b5eb2173759d9acb31a5", size = 7597 },
-]
-
-[[package]]
-name = "aipolabs-agents"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "aci-sdk" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "anthropic" },
-    { name = "crewai" },
-    { name = "dotenv" },
-    { name = "langchain" },
-    { name = "langchain-openai" },
-    { name = "llama-index" },
-    { name = "mypy" },
-    { name = "openai" },
-    { name = "rich" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "aci-sdk", specifier = ">=0.0.2b2" }]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "anthropic", specifier = ">=0.49.0" },
-    { name = "crewai", specifier = ">=0.108.0" },
-    { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "langchain", specifier = ">=0.3.21" },
-    { name = "langchain-openai", specifier = ">=0.3.11" },
-    { name = "llama-index", specifier = ">=0.12.26" },
-    { name = "mypy", specifier = ">=1.15.0" },
-    { name = "openai", specifier = ">=1.68.2" },
-    { name = "rich", specifier = ">=13.9.4" },
-    { name = "ruff", specifier = ">=0.11.2" },
 ]
 
 [[package]]

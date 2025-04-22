@@ -1,7 +1,8 @@
 import json
 import os
 
-from aci import ACI, meta_functions
+from aci import ACI
+from aci.meta_functions import ACISearchFunctions
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -19,19 +20,15 @@ openai = OpenAI()
 aci = ACI()
 
 prompt = (
-    "You are a helpful assistant with access to a unlimited number of tools via three meta functions: "
-    "ACI_SEARCH_APPS, ACI_SEARCH_FUNCTIONS, and ACI_GET_FUNCTION_DEFINITION."
-    "You can use ACI_SEARCH_APPS to find relevant apps (which include a set of functions), if you find Apps that might help with your tasks you can use ACI_SEARCH_FUNCTIONS to find relevant functions within certain apps."
-    "You can also use ACI_SEARCH_FUNCTIONS directly to find relevant functions across all apps."
-    "Once you have identified the function you need to use, you can use ACI_GET_FUNCTION_DEFINITION to get the definition of the function."
-    "You can then use the function in a tool call."
+    "You are a helpful assistant with access to a unlimited number of tools via a meta function: "
+    "ACI_SEARCH_FUNCTIONS"
+    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps."
+    "Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
 )
 
 # ACI meta functions for the LLM to discover the available executale functions dynamically
 tools_meta = [
-    meta_functions.ACISearchApps.SCHEMA,
-    meta_functions.ACISearchFunctions.SCHEMA,
-    meta_functions.ACIGetFunctionDefinition.SCHEMA,
+    ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
 ]
 # store retrieved function definitions (via meta functions) that will be used in the next iteration,
 # can dynamically append or remove functions from this list
@@ -53,7 +50,7 @@ def main() -> None:
                 },
                 {
                     "role": "user",
-                    "content": "Can you use brave search to find top 5 results about aipolabs ACI?",
+                    "content": "Can you use brave web search to find top 5 results about aipolabs ACI?",
                 },
             ]
             + chat_history,
@@ -90,8 +87,8 @@ def main() -> None:
                 format=FunctionDefinitionFormat.OPENAI,
             )
             # if the function call is a get, add the retrieved function definition to the tools_retrieved
-            if tool_call.function.name == meta_functions.ACIGetFunctionDefinition.NAME:
-                tools_retrieved.append(result)
+            if tool_call.function.name == ACISearchFunctions.get_name():
+                tools_retrieved.extend(result)
 
             rprint(Panel("Function Call Result", style="bold magenta"))
             rprint(result)
