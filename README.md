@@ -27,28 +27,27 @@ The second pattern includes **2 sub-patterns** based on how tools are discovered
 #### 2.1 Tool List Expansion Approach
 
 With this approach, you:
-- Use 3 meta functions (tools):  
-  `ACI_SEARCH_APPS`, `ACI_SEARCH_FUNCTIONS`, `ACI_GET_FUNCTION_DEFINITION`
-- Use meta functions (tools) to search for and retrieve tool definitions
+- Use `ACI_SEARCH_FUNCTIONS` meta function (tool):  
+- Search for relevant functions across all apps
 - Add discovered tools directly to the LLM's tool list
 - Allow the LLM to invoke these discovered tools directly by name
 
 **Key implementation points:**
 - Maintain a `tools_retrieved` list that dynamically adds/removes tools as they are discovered or abandoned
-- When `ACI_GET_FUNCTION_DEFINITION` returns a tool, add it to this list
-- Pass both meta functions (tools) and discovered tools to the model in each request
+- When `ACI_SEARCH_FUNCTIONS` returns functions (tools), add to this list
+- Pass both `ACI_SEARCH_FUNCTIONS` and discovered functions (tools) to the LLM in each request
 - The LLM calls discovered tools by name (e.g., `BRAVE_SEARCH__WEB_SEARCH`)
 
 
-#### 2.2 Tool Definition as Text Context Approach
+#### 2.2 Tool Definition as Text Context Approach (Less Reliable)
 
 With this approach, you:
 
-- Use 4 meta functions (tools):  
-  `ACI_SEARCH_APPS`, `ACI_SEARCH_FUNCTIONS`, `ACI_GET_FUNCTION_DEFINITION`, `ACI_EXECUTE_FUNCTION`
-- Use meta functions (tools) to retrieve tool definitions
-- Present those definitions to the LLM as **text content**
+- Use `ACI_SEARCH_FUNCTIONS` and `ACI_EXECUTE_FUNCTION` meta functions (tools)
+- Use `ACI_SEARCH_FUNCTIONS` to retrieve tool definitions
+- Present those definitions to the LLM as **text content** instead of adding them to the LLM's tool list
 - The LLM uses `ACI_EXECUTE_FUNCTION` to execute these tools **indirectly**
+- Note: This approach has lower function calling accuracy compared to the Tool List Expansion Approach due to the tools attached as text content instead of being added to the LLM's tool list
 
 **Key implementation points:**
 - Only include meta functions (tools) in the LLM's tool list
@@ -72,7 +71,7 @@ The examples are runnable, for a quick setup:
 
 - Clone the whole repository and install dependencies `uv sync`
 - Set your OpenAI API key and/or Anthropic API key (set as `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` in your environment). See [.env.example](.env.example).
-- Set your Aipolabs ACI API key (set as `AIPOLABS_ACI_API_KEY` in your environment)
+- Set your Aipolabs ACI API key (set as `ACI_API_KEY` in your environment)
 - Configure the app the example uses (e.g `BRAVE_SEARCH`) in the [Aipolabs ACI platform](https://platform.aci.dev)
 - Allow the Apps (e.g., `BRAVE_SEARCH`) to be used by your `agent` in the [Aipolabs ACI platform](https://platform.aci.dev)
 - Link an  account for the app you use on the [Aipolabs ACI platform](https://platform.aci.dev). If the app requires an API key (e.g. `BRAVE_SEARCH`) then you need to get the api key from that app (e.g. [brave](https://brave.com/search/api/)). If the app use OAuth2 (e.g. `GITHUB`), you need to complete the OAuth2 flow on
