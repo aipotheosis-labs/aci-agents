@@ -36,7 +36,7 @@ With this approach, you:
 - Maintain a `tools_retrieved` list that dynamically adds/removes tools as they are discovered or abandoned
 - When `ACI_SEARCH_FUNCTIONS` returns functions (tools), add to this list
 - Pass both `ACI_SEARCH_FUNCTIONS` and discovered functions (tools) to the LLM in each request
-- The LLM calls discovered tools by name (e.g., `BRAVE_SEARCH__WEB_SEARCH`)
+- The LLM can use the discovered tools for future tool calls **directly** (e.g., `BRAVE_SEARCH__WEB_SEARCH`)
 
 
 #### 2.2 Tool Definition as Text Context Approach (Less Reliable)
