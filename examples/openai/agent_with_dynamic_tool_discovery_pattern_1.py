@@ -26,7 +26,7 @@ prompt = (
     "Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
 )
 
-# ACI meta functions for the LLM to discover the available executale functions dynamically
+# ACI meta functions for the LLM to discover the available executable functions dynamically
 tools_meta = [
     ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
 ]
