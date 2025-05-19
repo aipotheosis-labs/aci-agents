@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 from aci import ACI
+from aci.types.enums import FunctionDefinitionFormat
 from agents import Agent, FunctionTool, RunContextWrapper, Runner
 from dotenv import load_dotenv
 
@@ -15,33 +16,36 @@ if not LINKED_ACCOUNT_OWNER_ID:
 aci = ACI()
 
 
-github_star_repository_function_definition = aci.functions.get_definition(
-    "GITHUB__STAR_REPOSITORY"
-)
-print(github_star_repository_function_definition)
+def get_tool(function_name: str, linked_account_owner_id: str) -> FunctionTool:
+    function_definition = aci.functions.get_definition(function_name)
+    name = function_definition["function"]["name"]
+    description = function_definition["function"]["description"]
+    parameters = function_definition["function"]["parameters"]
 
+    async def tool_impl(
+        ctx: RunContextWrapper[Any], args: str
+    ) -> str:
+        return aci.handle_function_call(
+            function_name,
+            json.loads(args),
+            linked_account_owner_id=linked_account_owner_id,
+            allowed_apps_only=True,
+            format=FunctionDefinitionFormat.OPENAI,
+        )
 
-async def run_function(ctx: RunContextWrapper[Any], args: str) -> str:
-    result = aci.handle_function_call(
-        github_star_repository_function_definition["function"]["name"],
-        json.loads(args),
-        linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+    return FunctionTool(
+        name=name,
+        description=description,
+        params_json_schema=parameters,
+        on_invoke_tool=tool_impl,
+        strict_json_schema=True,
     )
-    return result
-
-
-tool = FunctionTool(
-    name=github_star_repository_function_definition["function"]["name"],
-    description=github_star_repository_function_definition["function"]["description"],
-    params_json_schema=github_star_repository_function_definition["function"]["parameters"],
-    on_invoke_tool=run_function,
-)
 
 
 github_agent = Agent(
     name="github_agent",
     instructions="You are a helpful assistant that can use available tools to help the user.",
-    tools=[tool],
+    tools=[get_tool("GITHUB__STAR_REPOSITORY", LINKED_ACCOUNT_OWNER_ID)],
 )
 
 
