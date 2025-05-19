@@ -28,6 +28,7 @@ dev = [
     { name = "mcp", extra = ["cli"] },
     { name = "mypy" },
     { name = "openai" },
+    { name = "openai-agents" },
     { name = "rich" },
     { name = "ruff" },
 ]
@@ -46,6 +47,7 @@ dev = [
     { name = "mcp", extras = ["cli"], specifier = ">=1.6.0" },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "openai", specifier = ">=1.68.2" },
+    { name = "openai-agents", specifier = ">=0.0.12" },
     { name = "rich", specifier = ">=13.9.4" },
     { name = "ruff", specifier = ">=0.11.2" },
 ]
@@ -2390,6 +2392,24 @@ wheels = [
 ]
 
 [[package]]
+name = "openai-agents"
+version = "0.0.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "griffe" },
+    { name = "mcp" },
+    { name = "openai" },
+    { name = "pydantic" },
+    { name = "requests" },
+    { name = "types-requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/33/b892aa49a467efac6262fdee302510733b059856eec334956c92bdd7fd94/openai_agents-0.0.12.tar.gz", hash = "sha256:5d889a5abb2e335dc21d5c11cf8b133667d919905259a35fd1405c5b6a8c484f", size = 1334685 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/aa/d1486f1b971eca782b1ee3626037b7dedd9302e98ff7d10dc34462b8a5dd/openai_agents-0.0.12-py3-none-any.whl", hash = "sha256:122d9b71b408c70ffc8cd9e78751cc765ef104938fb937484d5b163790132e31", size = 116247 },
+]
+
+[[package]]
 name = "openpyxl"
 version = "3.1.5"
 source = { registry = "https://pypi.org/simple" }
@@ -3846,6 +3866,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8b/6f/3991f0f1c7fcb2df31aef28e0594d8d54b05393a0e4e34c65e475c2a5d41/typer-0.15.2.tar.gz", hash = "sha256:ab2fab47533a813c49fe1f16b1a370fd5819099c00b119e0633df65f22144ba5", size = 100711 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7f/fc/5b29fea8cee020515ca82cc68e3b8e1e34bb19a3535ad854cac9257b414c/typer-0.15.2-py3-none-any.whl", hash = "sha256:46a499c6107d645a9c13f7ee46c5d5096cae6f5fc57dd11eccbbb9ae3e44ddfc", size = 45061 },
+]
+
+[[package]]
+name = "types-requests"
+version = "2.32.0.20250515"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/06/c1/cdc4f9b8cfd9130fbe6276db574f114541f4231fcc6fb29648289e6e3390/types_requests-2.32.0.20250515.tar.gz", hash = "sha256:09c8b63c11318cb2460813871aaa48b671002e59fda67ca909e9883777787581", size = 23012 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fe/0f/68a997c73a129287785f418c1ebb6004f81e46b53b3caba88c0e03fcd04a/types_requests-2.32.0.20250515-py3-none-any.whl", hash = "sha256:f8eba93b3a892beee32643ff836993f15a785816acca21ea0ffa006f05ef0fb2", size = 20635 },
 ]
 
 [[package]]
