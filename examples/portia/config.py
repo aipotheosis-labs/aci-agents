@@ -19,14 +19,14 @@ config = Config.from_default(
     default_model="google/gemini-2.5-pro-preview-05-06",
 )
 
-# config for mcp tools via portia's mcp tool registry
+# config for mcp tools via portia's mcp tool registry, refer to env.example for setup
 mcp_registry = McpToolRegistry.from_stdio_connection(
     server_name="aci-apps-stdio",
     command="uvx",
     args=[
         "aci-mcp", "apps-server",
         "--apps=SLACK,GITHUB,SEARCH,WEATHER,GMAIL",
-        "--linked-account-owner-id=parthshr370",
+        "--linked-account-owner-id= <your-linked-account-owner-id> ", # you can setup your linked acc owner ID at - https://platform.aci.dev/apps
     ],
     env=process_env
 )
