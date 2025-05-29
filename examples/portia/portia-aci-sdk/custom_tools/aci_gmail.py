@@ -51,10 +51,13 @@ class GmailSendEmailTool(Tool):
         recipient: str,
         sender: str="me",
         subject: str="",
-        cc: List[str] = [],
-        bcc: List[str] = [],
+        cc: List[str] = None,
+        bcc: List[str] = None,
     ) -> str:
         """Run the GmailSendEmailTool."""
+        cc = [] if cc is None else cc
+        bcc = [] if bcc is None else bcc
+            
         aci = ACI()
         openai_function_def = aci.functions.get_definition("GMAIL__SEND_EMAIL")
         
@@ -80,4 +83,4 @@ class GmailSendEmailTool(Tool):
             )
             return result
         except Exception as e:
-            raise ToolHardError(f"Failed to execute ACI GitHub tool: {e}")
+            raise ToolHardError(f"Failed to execute ACI Gmail tool: {e}") from e

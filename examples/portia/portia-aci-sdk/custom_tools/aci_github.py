@@ -49,6 +49,6 @@ class GithubGetRepositoryTool(Tool):
             )
             return result
         except Exception as e:
-            raise ToolHardError(f"Failed to execute ACI GitHub tool: {e}")
+            raise ToolHardError(f"Failed to execute ACI GitHub tool: {e}") from e
         
         
