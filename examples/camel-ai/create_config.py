@@ -20,7 +20,7 @@ def create_config():
                     "apps-server",
                     "--apps=BRAVE_SEARCH,GITHUB,ARXIV",
                     "--linked-account-owner-id",
-                    "<YOUR_LINKED_ACCOUNT_ID>",
+                    "<YOUR_LINKED_ACCOUNT_OWNER_ID>",
                 ],
                 "env": {"ACI_API_KEY": aci_api_key},
             }

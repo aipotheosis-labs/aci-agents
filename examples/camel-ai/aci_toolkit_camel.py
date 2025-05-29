@@ -8,15 +8,16 @@ from camel.toolkits import ACIToolkit
 
 load_dotenv()
 
+
 def main():
     rprint("[green]CAMEL AI with ACI Toolkit[/green]")
-    
+
     # get the linked account from env or use default
-    linked_account = os.getenv("LINKED_ACCOUNT_OWNER", "parthshr370")
-    rprint(f"Using account: [cyan]{linked_account}[/cyan]")
+    linked_account_owner_id = os.getenv("LINKED_ACCOUNT_OWNER_ID", "parthshr370")
+    rprint(f"Using account: [cyan]{linked_account_owner_id}[/cyan]")
 
     # setup aci toolkit
-    aci_toolkit = ACIToolkit(linked_account_owner_id=linked_account)
+    aci_toolkit = ACIToolkit(linked_account_owner_id=linked_account_owner_id)
     tools = aci_toolkit.get_tools()
     rprint(f"Loaded [cyan]{len(tools)}[/cyan] tools")
 
@@ -34,23 +35,24 @@ def main():
 
     # get user query
     query = input("\nEnter your query: ")
-    
+
     rprint("\n[yellow]Processing...[/yellow]")
     response = agent.step(query)
-    
+
     # show raw response
     rprint(f"\n[dim]{response.msg}[/dim]")
 
     rprint(f"\n[dim]Raw response type: {type(response)}[/dim]")
     rprint(f"[dim]Response: {response}[/dim]")
-    
+
     # try to get the actual content
-    if hasattr(response, 'msgs') and response.msgs:
+    if hasattr(response, "msgs") and response.msgs:
         rprint(f"\nFound [cyan]{len(response.msgs)}[/cyan] messages:")
         for i, msg in enumerate(response.msgs):
-            rprint(f"Message {i+1}: {msg.content}")
-    
+            rprint(f"Message {i + 1}: {msg.content}")
+
     rprint("\n[green]Done[/green]")
+
 
 if __name__ == "__main__":
     main()
