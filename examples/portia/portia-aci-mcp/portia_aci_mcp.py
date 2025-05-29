@@ -5,7 +5,7 @@ from portia import (
     Portia,
     PlanRunState
 )
-from portia.config import config, tool_registry
+from config import config, tool_registry
 
 """
 Demonstration script for using Portia with ACI Multi-Capability Planner.

@@ -1,5 +1,6 @@
 import sys
 import io
+import os
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
@@ -18,8 +19,18 @@ load_dotenv(override=True)
 
 # Instantiate Portia with the custom tools
 portia = Portia(tools=custom_tool_registry)
-# define the task and run it
-plan_run = portia.run('This is the GitHub project URL: https://github.com/aipotheosis-labs/aci, please obtain detailed information for this project on GitHub, then search the web for more information about this project, ACI.dev, last, generate a comprehensive report based on all the collected data, and send the summary to yoyoyuetwo@gmail.com via Gmail, with the sender being "me".')
+
+# get the environment variables
+GITHUB_PROJECT_URL = os.environ.get('GITHUB_PROJECT_URL', 'https://github.com/aipotheosis-labs/aci')
+EMAIL_RECIPIENT = os.environ.get('EMAIL_RECIPIENT')
+if not EMAIL_RECIPIENT:
+    raise ValueError("EMAIL_RECIPIENT environment variable is not set")
+
+# define the task
+task_description = f'This is the GitHub project URL: {GITHUB_PROJECT_URL}, please obtain detailed information for this project on GitHub, then search the web for more information about this project, ACI.dev, last, generate a comprehensive report based on all the collected data, and send the summary to {EMAIL_RECIPIENT} via Gmail, with the sender being "me".'
+
+# run it
+plan_run = portia.run(task_description)
 
 # Check if the plan run was paused due to raised clarifications
 while plan_run.state == PlanRunState.NEED_CLARIFICATION:
@@ -36,6 +47,7 @@ while plan_run.state == PlanRunState.NEED_CLARIFICATION:
         if isinstance(clarification, ActionClarification):
             print(f"{clarification.user_guidance} -- Please click on the link below to proceed.")
             print(clarification.action_url)
+            input("Press Enter after you have completed the action...")
             plan_run = portia.wait_for_ready(plan_run)
             
 

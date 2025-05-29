@@ -1,16 +1,9 @@
-from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
 from typing import List
-from portia import (
-    InputClarification,
-    Tool,
-    ToolHardError,
-    ToolRunContext,
-    ClarificationCategory
-)
-import os
+from portia.tool import Tool, ToolRunContext, ToolHardError
 
 from aci import ACI
+import os
 
 
 class GmailSendEmailSchema(BaseModel):
@@ -40,12 +33,6 @@ class GmailSendEmailSchema(BaseModel):
         default=[],
         description="The email addresses of the bcc recipients."
     )
-    # This parameter is not used in the tool, but it is just set to invoke "Input Clarification".
-    # So you need to input your ACI API key in console when you run the tool.
-    aci_api_key: str = Field(
-        ...,
-        description="The API key for the ACI instance."
-    )
 
 
 class GmailSendEmailTool(Tool):
@@ -63,24 +50,12 @@ class GmailSendEmailTool(Tool):
         body: str,
         recipient: str,
         sender: str="me",
-        subject: str=None,
-        cc: List[str] = None,
-        bcc: List[str] = None,
-        aci_api_key: str = None
+        subject: str="",
+        cc: List[str] = [],
+        bcc: List[str] = [],
     ) -> str:
         """Run the GmailSendEmailTool."""
-        # check if the API key is provided, if not, invoke "Input Clarification".
-        if not aci_api_key:
-            return InputClarification(
-                plan_run_id=ctx.plan_run_id,
-                argument_name="aci_api_key",
-                category=ClarificationCategory.INPUT,
-                user_guidance="Please input your ACI API key for the instance of aci",
-            )
-        
-        # if the API key is provided, continue to execute the tool.
-        # Note: other tools(e.g., aci_bravesearch.py, aci_github.py) could get the API key from the environment variable.
-        aci = ACI(api_key=aci_api_key)
+        aci = ACI()
         openai_function_def = aci.functions.get_definition("GMAIL__SEND_EMAIL")
         
         parameters = {
@@ -92,9 +67,17 @@ class GmailSendEmailTool(Tool):
             "bcc": bcc,
         }
 
-        result = aci.handle_function_call(
-            openai_function_def["function"]["name"],
-            parameters,
-            linked_account_owner_id="<your-linked-account-owner-id>",
-        )
-        return result
+        # get linked_account_owner_id from environment variable
+        linked_account_owner_id = os.environ.get('LINKED_ACCOUNT_OWNER_ID')
+        if not linked_account_owner_id:
+            raise ValueError("LINKED_ACCOUNT_OWNER_ID environment variable is not set")
+
+        try:
+            result = aci.handle_function_call(
+                openai_function_def["function"]["name"],
+                parameters,
+                linked_account_owner_id
+            )
+            return result
+        except Exception as e:
+            raise ToolHardError(f"Failed to execute ACI GitHub tool: {e}")

@@ -1,8 +1,8 @@
-from pathlib import Path
 from pydantic import BaseModel, Field
-from portia.tool import Tool, ToolRunContext
+from portia.tool import Tool, ToolRunContext, ToolHardError
 
 from aci import ACI
+import os
 
 
 class BraveSearchToolSchema(BaseModel):
@@ -32,11 +32,20 @@ class BraveSearchTool(Tool):
             }
         }
 
-        result = aci.handle_function_call(
-            openai_function_def["function"]["name"],
-            parameters,
-            linked_account_owner_id="<your-linked-account-owner-id>",
-        )
-        return result
+        # get linked_account_owner_id from environment variable
+        linked_account_owner_id = os.environ.get('LINKED_ACCOUNT_OWNER_ID')
+        if not linked_account_owner_id:
+            raise ValueError("LINKED_ACCOUNT_OWNER_ID environment variable is not set")
+
+        try:
+            result = aci.handle_function_call(
+                openai_function_def["function"]["name"],
+                parameters,
+                linked_account_owner_id
+            )
+            return result
+        except Exception as e:
+            raise ToolHardError(f"Failed to execute ACI GitHub tool: {e}")
+
         
         
