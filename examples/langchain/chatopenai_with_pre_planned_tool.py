@@ -34,11 +34,18 @@ def main() -> None:
     # initial messages
     messages: List[BaseMessage] = [HumanMessage(content="Star the repo https://github.com/aipotheosis-labs/aci, then search information about ACI.dev.")]
     
-    # Loop until no tool_call
-    while True:
+    # Loop until no tool_call (with max iterations for safety)
+    max_iterations = 10
+    iteration_count = 0
+    while iteration_count < max_iterations:
+        iteration_count += 1
         # Call model
-        ai_message: AIMessage = llm_with_tools.invoke(messages)
-        messages.append(ai_message)
+        try:
+            ai_message: AIMessage = llm_with_tools.invoke(messages)
+            messages.append(ai_message)
+        except Exception as e:
+            rprint(Panel(f"Error calling LLM: {e}", style="bold red"))
+            break
         
         # Check if contains tool calls
         if not hasattr(ai_message, "tool_calls") or not ai_message.tool_calls:
@@ -47,6 +54,11 @@ def main() -> None:
             
         # Has tool calls, execute them one by one
         for tool_call in ai_message.tool_calls:
+            # Validate tool call structure
+            if not all(key in tool_call for key in ["name", "args", "id"]):
+                rprint(Panel(f"Invalid tool call structure: {tool_call}", style="bold red"))
+                continue
+                
             tool_name = tool_call["name"]
             tool_args = tool_call["args"]
             
@@ -54,12 +66,17 @@ def main() -> None:
             rprint(f"arguments: {tool_args}")
             
             # Execute tool call
-            result = aci.handle_function_call(
-                tool_name,
-                tool_args,
-                linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
-                format=FunctionDefinitionFormat.OPENAI,
-            )
+            try:
+                result = aci.handle_function_call(
+                    tool_name,
+                    tool_args,
+                    linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+                    format=FunctionDefinitionFormat.OPENAI,
+                    )
+            except Exception as e:
+                result = f"Error executing tool {tool_name}: {e}"
+                rprint(Panel(f"Tool execution error: {e}", style="bold red"))
+            
             
             rprint(Panel("Function Call Result", style="bold magenta"))
             rprint(result)
@@ -73,7 +90,17 @@ def main() -> None:
     
     # Print final AI response
     rprint(Panel("Final AI Response", style="bold green"))
-    rprint(messages[-1].content)
+    # Find the last AIMessage in the conversation
+    last_ai_message = None
+    for message in reversed(messages):
+        if isinstance(message, AIMessage):
+            last_ai_message = message
+            break
+    
+    if last_ai_message:
+        rprint(last_ai_message.content)
+    else:
+        rprint("No AI response found")
 
 
 if __name__ == "__main__":
