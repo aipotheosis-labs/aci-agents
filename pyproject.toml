@@ -22,4 +22,7 @@ dev = [
     "mypy>=1.15.0",
     "mcp[cli]>=1.6.0",
     "openai-agents>=0.0.12",
+    "pydantic-ai>=0.2.4",
+    "pydantic-ai-slim[anthropic,openai]>=0.2.4",
+    "ag2[anthropic,cohere,gemini,mistral,openai]>=0.9.2",
 ]
