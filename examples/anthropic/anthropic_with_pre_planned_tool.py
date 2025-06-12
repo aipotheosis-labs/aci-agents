@@ -16,6 +16,12 @@ if not LINKED_ACCOUNT_OWNER_ID:
 
 def main() -> None:
     aci = ACI()
+    github_star_repository_function_definition = aci.functions.get_definition(
+        "GITHUB__STAR_REPOSITORY", format=FunctionDefinitionFormat.ANTHROPIC
+    )
+    rprint(Panel("Github star repository function definition", style="bold blue"))
+    rprint(github_star_repository_function_definition)
+
     github_get_user_function_definition = aci.functions.get_definition(
         "GITHUB__GET_USER", format=FunctionDefinitionFormat.ANTHROPIC
     )
@@ -24,39 +30,91 @@ def main() -> None:
 
     client = anthropic.Anthropic()
 
-    response = client.messages.create(
-        model="claude-3-7-sonnet-20250219",
-        max_tokens=1000,
-        temperature=1,
-        system="You are a helpful assistant with access to a variety of tools.",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "Tell me about the github user karpathy"}
-                ],
-            }
-        ],
-        tools=[github_get_user_function_definition],
-    )
+    # Initialize message list
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Star the repo https://github.com/aipotheosis-labs/aci, and tell me about the github owner of the repo."}
+            ],
+        }
+    ]
 
-    for content_block in response.content:
-        if isinstance(content_block, TextBlock):
-            rprint(Panel("LLM Response", style="bold green"))
-            rprint(content_block.text)
-        elif isinstance(content_block, ToolUseBlock):
-            rprint(Panel(f"Tool call: {content_block.name}", style="bold yellow"))
-            rprint(f"arguments: {content_block.input}")
+    # Set maximum iterations to prevent infinite loops
+    max_iterations = 10
+    iteration_count = 0
 
-            result = aci.handle_function_call(
-                content_block.name,
-                content_block.input,
-                linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
-                format=FunctionDefinitionFormat.ANTHROPIC,
+    while iteration_count < max_iterations:
+        iteration_count += 1
+        rprint(Panel(f"Iteration {iteration_count}", style="bold blue"))
+
+        # Call the model
+        try:
+            response = client.messages.create(
+                model="claude-3-7-sonnet-20250219",
+                max_tokens=1000,
+                temperature=1,
+                system="You are a helpful assistant with access to a variety of tools.",
+                messages=messages,
+                tools=[github_star_repository_function_definition,github_get_user_function_definition],
             )
+        except Exception as e:
+            rprint(Panel(f"Error calling LLM: {e}", style="bold red"))
+            break
 
-            rprint(Panel("Function Call Result", style="bold magenta"))
-            rprint(result)
+        # Process response content
+        has_tool_call = False
+        for content_block in response.content:
+            if isinstance(content_block, TextBlock):
+                rprint(Panel("LLM Response", style="bold green"))
+                rprint(content_block.text)
+                # Add AI response to message list
+                messages.append({
+                    "role": "assistant",
+                    "content": [{"type": "text", "text": content_block.text}]
+                })
+            elif isinstance(content_block, ToolUseBlock):
+                has_tool_call = True
+                rprint(Panel(f"Tool call: {content_block.name}", style="bold yellow"))
+                rprint(f"arguments: {content_block.input}")
+                # Add tool call to message list
+                messages.append({
+                    "role": "assistant",
+                    "content": [content_block.model_dump()]
+                })
+
+                # Execute tool call
+                try:
+                    result = aci.handle_function_call(
+                        content_block.name,
+                        content_block.input,
+                        linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+                        format=FunctionDefinitionFormat.ANTHROPIC,
+                    )
+                except Exception as e:
+                    result = f"Error executing tool {content_block.name}: {e}"
+                    rprint(Panel(f"Tool execution error: {e}", style="bold red"))
+
+                rprint(Panel("Function Call Result", style="bold magenta"))
+                rprint(result)
+
+                # Add tool call result to message list
+                messages.append({
+                    "role": "tool",
+                    "content": [{"type": "text", "text": f"Tool {content_block.name} returned: {result}"}]
+                })
+
+        # If no tool call, this is the final response, exit loop
+        if not has_tool_call:
+            break
+
+    # Print final response
+    rprint(Panel("Final Response", style="bold green"))
+    for message in messages:
+        if message["role"] == "assistant":
+            for content in message["content"]:
+                if content["type"] == "text":
+                    rprint(content["text"])
 
 
 if __name__ == "__main__":

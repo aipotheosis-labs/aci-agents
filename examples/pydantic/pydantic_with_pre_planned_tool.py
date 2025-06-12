@@ -1,4 +1,3 @@
-import asyncio
 import json
 import os
 from typing import Callable
@@ -6,9 +5,7 @@ from typing import Callable
 from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
-from llama_index.core.agent.workflow import FunctionAgent
-from llama_index.llms.openai import OpenAI
-from rich import print as rprint
+from pydantic_ai import Agent
 
 
 def build_aci_function(
@@ -70,16 +67,20 @@ if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
 
-async def main() -> None:
-    agent = FunctionAgent(
-        tools=[build_aci_function("GITHUB__STAR_REPOSITORY", LINKED_ACCOUNT_OWNER_ID)],
-        llm=OpenAI(model="gpt-4o-mini"),
-        system_prompt="You are a helpful assistant that can use available tools to help the user.",
+agent = Agent(
+    "openai:gpt-4o-mini",
+    deps_type=str,
+    system_prompt=("You are a helpful assistant."),
+)
+
+
+agent.tool_plain(
+    build_aci_function(
+        "GITHUB__SEARCH_USERS",
+        LINKED_ACCOUNT_OWNER_ID,
+        FunctionDefinitionFormat.OPENAI,
     )
+)
 
-    response = await agent.run("Star the repo https://github.com/aipotheosis-labs/aci")
-    rprint(response)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+result = agent.run_sync("tell me about github user zixuan-x")
+print(result)
