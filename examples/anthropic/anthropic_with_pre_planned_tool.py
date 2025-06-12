@@ -22,11 +22,11 @@ def main() -> None:
     rprint(Panel("Github star repository function definition", style="bold blue"))
     rprint(github_star_repository_function_definition)
 
-    brave_search_web_search_function_definition = aci.functions.get_definition(
-        "BRAVE_SEARCH__WEB_SEARCH", format=FunctionDefinitionFormat.ANTHROPIC
+    github_get_user_function_definition = aci.functions.get_definition(
+        "GITHUB__GET_USER", format=FunctionDefinitionFormat.ANTHROPIC
     )
-    rprint(Panel("Brave search web search function definition", style="bold blue"))
-    rprint(brave_search_web_search_function_definition)
+    rprint(Panel("Github get user function definition", style="bold blue"))
+    rprint(github_get_user_function_definition)
 
     client = anthropic.Anthropic()
 
@@ -35,7 +35,7 @@ def main() -> None:
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": "Star the repo https://github.com/aipotheosis-labs/aci, then search information about ACI.dev."}
+                {"type": "text", "text": "Star the repo https://github.com/aipotheosis-labs/aci, and tell me about the github owner of the repo."}
             ],
         }
     ]
@@ -56,7 +56,7 @@ def main() -> None:
                 temperature=1,
                 system="You are a helpful assistant with access to a variety of tools.",
                 messages=messages,
-                tools=[github_star_repository_function_definition, brave_search_web_search_function_definition],
+                tools=[github_star_repository_function_definition,github_get_user_function_definition],
             )
         except Exception as e:
             rprint(Panel(f"Error calling LLM: {e}", style="bold red"))
