@@ -77,6 +77,11 @@ def main() -> None:
                 has_tool_call = True
                 rprint(Panel(f"Tool call: {content_block.name}", style="bold yellow"))
                 rprint(f"arguments: {content_block.input}")
+                # Add tool call to message list
+                messages.append({
+                    "role": "assistant",
+                    "content": [content_block.model_dump()]
+                })
 
                 # Execute tool call
                 try:
@@ -95,7 +100,7 @@ def main() -> None:
 
                 # Add tool call result to message list
                 messages.append({
-                    "role": "user",
+                    "role": "tool",
                     "content": [{"type": "text", "text": f"Tool {content_block.name} returned: {result}"}]
                 })
 
