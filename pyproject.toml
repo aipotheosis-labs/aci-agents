@@ -22,4 +22,5 @@ dev = [
     "mypy>=1.15.0",
     "mcp[cli]>=1.6.0",
     "openai-agents>=0.0.12",
+    "mistralai>=1.8.2",
 ]
