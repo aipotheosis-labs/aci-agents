@@ -80,7 +80,12 @@ def main() -> None:
                 # Add tool call to message list
                 messages.append({
                     "role": "assistant",
-                    "content": [content_block.model_dump()]
+                    "content": [{
+                        "type": "tool_use",
+                        "id": content_block.id,
+                        "name": content_block.name,
+                        "input": content_block.input,
+                    }]
                 })
 
                 # Execute tool call
@@ -101,7 +106,11 @@ def main() -> None:
                 # Add tool call result to message list
                 messages.append({
                     "role": "tool",
-                    "content": [{"type": "text", "text": f"Tool {content_block.name} returned: {result}"}]
+                    "content": [{
+                        "type": "tool_result",
+                        "id": content_block.id,
+                        "content": str(result),
+                    }]
                 })
 
         # If no tool call, this is the final response, exit loop
