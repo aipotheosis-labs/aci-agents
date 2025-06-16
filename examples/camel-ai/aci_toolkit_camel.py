@@ -6,7 +6,7 @@ from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.toolkits import ACIToolkit
 from collections import defaultdict
-from pprint import pprint
+from camel.messages import BaseMessage
 import json
 
 load_dotenv()
@@ -23,12 +23,25 @@ def summarize_tool_outputs(model, response, query):
     Returns:
         str: A natural language summary of the tool call results
     """
-    agent = ChatAgent(model=model)
+
+    summariser_system_msg = BaseMessage.make_assistant_message(
+        role_name="Summariser",
+        content="You summarise tool outputs without calling any tools."
+    )
+    agent = ChatAgent(
+        system_message=summariser_system_msg,
+        model=model,
+        tools=[]# ensure no tool recursion
+    )        
     tool_calls = response.info.get("tool_calls", [])
     # Return original response if no tools were called
     if not tool_calls:
         rprint("\n[dim]No tools were called[/dim]")
-        return response.msg.content
+        if hasattr(response, "msg") and response.msg:
+            return response.msg.content
+        if hasattr(response, "msgs") and response.msgs:
+            return response.msgs[-1].content
+        return str(response)
 
     # Process tool call results and generate summary
     structured_results: dict[str, list] = defaultdict(list)
@@ -67,7 +80,15 @@ def main():
     )
 
     # Create and initialize chat agent with tools
-    agent = ChatAgent(model=model, tools=tools)
+    system_message = BaseMessage.make_assistant_message(
+        role_name="Assistant",
+        content="You are a helpful assistant with access to the ACI toolkit."
+    )
+    agent = ChatAgent(
+        system_message=system_message,
+        model=model,
+        tools=tools
+    )
     rprint("[green]Agent ready[/green]")
 
     # Get user input
@@ -81,9 +102,9 @@ def main():
     rprint(f"[dim]Response: {response}[/dim]")
     tool_calls = response.info.get("tool_calls", [])
     rprint(f"\nFound [cyan]{len(tool_calls)}[/cyan] tool calls:")
-    for count,tool_call in enumerate(tool_calls,start=1):
-        rprint(f"[dim]Tool call {count}: {tool_call}[/dim]")
-        rprint(f"[dim]Tool call {count} result: {tool_call.result}[/dim]")
+    for idx, tc in enumerate(tool_calls, start=1):
+        rprint(f"[dim]Tool call {idx}: {tc}[/dim]")
+        rprint(f"[dim]Tool call {idx} result: {getattr(tc, 'result', 'N/A')}[/dim]")
 
     # Generate and display summary of tool call results
     summary = summarize_tool_outputs(model, response, query)
