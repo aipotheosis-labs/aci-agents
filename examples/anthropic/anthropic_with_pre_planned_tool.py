@@ -1,6 +1,7 @@
 import os
 
 import anthropic
+import json
 from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
 from anthropic.types.content_block import TextBlock, ToolUseBlock
@@ -109,7 +110,7 @@ def main() -> None:
                     "content": [{
                         "type": "tool_result",
                         "id": content_block.id,
-                        "content": str(result),
+                        "content": json.dumps(result, ensure_ascii=False),
                     }]
                 })
 
