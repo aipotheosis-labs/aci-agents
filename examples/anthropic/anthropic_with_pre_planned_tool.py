@@ -106,10 +106,10 @@ def main() -> None:
 
                 # Add tool call result to message list
                 messages.append({
-                    "role": "tool",
+                    "role": "user",
                     "content": [{
                         "type": "tool_result",
-                        "id": content_block.id,
+                        "tool_use_id": content_block.id,
                         "content": json.dumps(result, ensure_ascii=False),
                     }]
                 })
