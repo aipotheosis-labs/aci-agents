@@ -33,7 +33,8 @@ def summarize_tool_outputs(model, response, query):
         model=model,
         tools=[]# ensure no tool recursion
     )        
-    tool_calls = response.info.get("tool_calls", [])
+    info = getattr(response, "info", {})
+    tool_calls = info.get("tool_calls", [])
     # Return original response if no tools were called
     if not tool_calls:
         rprint("\n[dim]No tools were called[/dim]")
@@ -46,7 +47,11 @@ def summarize_tool_outputs(model, response, query):
     # Process tool call results and generate summary
     structured_results: dict[str, list] = defaultdict(list)
     for record in tool_calls:
-        structured_results[record.tool_name].append(record.result)
+        # Ensure every value is JSON-serialisable
+        value = record.result
+        if not isinstance(value, (str, int, float, bool, list, dict, type(None))):
+            value = str(value)
+        structured_results[record.tool_name].append(value)
 
     tool_outputs_json = json.dumps(structured_results, ensure_ascii=False, indent=2)
     rprint(f"\n[dim]Tool outputs: {tool_outputs_json}[/dim]")
