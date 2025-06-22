@@ -56,7 +56,6 @@ async def summarize_tool_outputs(model, response, query):
         structured_results[record.tool_name].append(value)
 
     tool_outputs_json = json.dumps(structured_results, ensure_ascii=False, indent=2)
-    rprint(f"\n[dim]Tool outputs: {tool_outputs_json}[/dim]")
     summary_prompt = f"""Please summarize the following tool call results:{tool_outputs_json} and answer the user's question:{query} in natural language."""
     summary_response = await agent.astep(summary_prompt)
     rprint(f"\n[dim]Summary response: {summary_response}[/dim]")
@@ -115,7 +114,6 @@ async def main():
         rprint(f"\nFound [cyan]{len(tool_calls)}[/cyan] tool calls:")
         for idx, tc in enumerate(tool_calls, start=1):
             rprint(f"[dim]Tool call {idx}: {tc}[/dim]")
-            rprint(f"[dim]Tool call {idx} result: {getattr(tc, 'result', 'N/A')}[/dim]")
 
         # Generate and display summary of tool call results
         summary = await summarize_tool_outputs(model, response, query)
