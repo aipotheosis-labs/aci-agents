@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "aci_apps": {
+      "command": "uvx",
+      "args": [
+        "aci-mcp",
+        "apps-server",
+        "--apps=BRAVE_SEARCH,GITHUB,ARXIV",
+        "--linked-account-owner-id",
+        "yoyo"
+      ],
+      "env": {
+        "ACI_API_KEY": "4d7c43c515cff500b698d2ec8cbbb8fff8689d515813cde2b25fad29d1cce7db"
+      }
+    }
+  }
+}
