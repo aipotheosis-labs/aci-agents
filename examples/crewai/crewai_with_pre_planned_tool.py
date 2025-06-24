@@ -18,8 +18,8 @@ if not LINKED_ACCOUNT_OWNER_ID:
 @tool
 def github_star_repository(owner: str, repo: str) -> str:
     """Star a GitHub repository by providing the owner and repo name"""
-    rprint(Panel("Function Call: github_star_repo", style="bold yellow"))
-    rprint(f"Parameters: owner = {owner}, repo = {repo}")
+    # rprint(Panel("Function Call: github_star_repo", style="bold yellow"))
+    # rprint(f"Parameters: owner = {owner}, repo = {repo}")
     aci = ACI()
 
     result = aci.handle_function_call(
@@ -28,8 +28,25 @@ def github_star_repository(owner: str, repo: str) -> str:
         linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
         format=FunctionDefinitionFormat.ANTHROPIC,
     )
-    rprint(Panel("Function Call Result", style="bold magenta"))
-    rprint(result)
+    # rprint(Panel("Function Call Result", style="bold magenta"))
+    # rprint(result)
+    return json.dumps(result)
+
+@tool
+def github_get_user(username: str) -> str:
+    """Get a GitHub user by providing the username"""
+    # rprint(Panel("Function Call: github_get_user", style="bold yellow"))
+    # rprint(f"Parameters: username = {username}")
+    aci = ACI()
+
+    result = aci.handle_function_call(
+        "GITHUB__GET_USER",
+        {"path": {"username": username}},
+        linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+        format=FunctionDefinitionFormat.ANTHROPIC,
+    )
+    # rprint(Panel("Function Call Result", style="bold magenta"))
+    # rprint(result)
     return json.dumps(result)
 
 
@@ -38,14 +55,14 @@ def main() -> None:
         role="Assistant",
         backstory="You are a helpful assistant that can use available tools to help the user.",
         goal="Help with user requests",
-        tools=[github_star_repository],
+        tools=[github_star_repository, github_get_user],
         function_calling_llm="gpt-4o-mini",
         verbose=True,
     )
 
     task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aci",
-        expected_output="The result of the star operation from the GitHub API",
+        description="Star the repo https://github.com/aipotheosis-labs/aci, and get the user information for the user aipotheosis-labs",
+        expected_output="A natural language summary of both operations: whether the repository was successfully starred and key information about the GitHub user.",
     )
 
     response = agent.execute_task(task)
