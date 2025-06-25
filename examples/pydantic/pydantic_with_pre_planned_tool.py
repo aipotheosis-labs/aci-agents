@@ -4,10 +4,8 @@ from typing import Callable
 
 from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
-from crewai import Agent, Task
-from crewai.tools import tool
 from dotenv import load_dotenv
-from rich import print as rprint
+from pydantic_ai import Agent
 
 
 def build_aci_function(
@@ -69,32 +67,20 @@ if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
 
-def main() -> None:
-    agent = Agent(
-        role="Assistant",
-        backstory="You are a helpful assistant that can use available tools to help the user.",
-        goal="Help with user requests",
-        tools=[
-            tool(
-                build_aci_function(
-                    "GITHUB__STAR_REPOSITORY",
-                    LINKED_ACCOUNT_OWNER_ID,
-                    FunctionDefinitionFormat.OPENAI,
-                )
-            )
-        ],
-        function_calling_llm="gpt-4o-mini",
-        verbose=True,
+agent = Agent(
+    "openai:gpt-4o-mini",
+    deps_type=str,
+    system_prompt=("You are a helpful assistant."),
+)
+
+
+agent.tool_plain(
+    build_aci_function(
+        "GITHUB__SEARCH_USERS",
+        LINKED_ACCOUNT_OWNER_ID,
+        FunctionDefinitionFormat.OPENAI,
     )
+)
 
-    task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aci",
-        expected_output="The result of the star operation from the GitHub API",
-    )
-
-    response = agent.execute_task(task)
-    rprint(response)
-
-
-if __name__ == "__main__":
-    main()
+result = agent.run_sync("tell me about github user zixuan-x")
+print(result)
