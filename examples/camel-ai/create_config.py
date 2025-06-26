@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from dotenv import load_dotenv
 
 
@@ -17,9 +18,10 @@ def create_config():
     config = {
         "mcpServers": {
             "aci_apps": {
-                "command": "uvx",
+                "command": sys.executable,
                 "args": [
-                    "aci-mcp",
+                    "-m",
+                    "aci_mcp",
                     "apps-server",
                     "--apps=BRAVE_SEARCH,GITHUB,ARXIV",
                     "--linked-account-owner-id",

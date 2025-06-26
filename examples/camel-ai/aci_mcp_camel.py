@@ -63,6 +63,7 @@ async def summarize_tool_outputs(model, response, query):
 
 
 async def main():
+    mcp_toolkit = None
     try:
         from create_config import create_config
         
@@ -82,7 +83,10 @@ async def main():
         # Setup gemini model
         model = ModelFactory.create(
             model_platform=ModelPlatformType.GEMINI,
-            model_type="gemini-2.0-flash-001", # gemini-2.5-pro-preview-05-06
+            # If you'd like to use the new Gemini 2.5 model, 
+            # please ensure you have a paid account and uncomment the following line
+            # model_type="gemini-2.5-pro-preview-05-06",
+            model_type="gemini-2.0-flash-001", 
             api_key=os.getenv("GOOGLE_API_KEY"),
             model_config_dict={"temperature": 0.7, "max_tokens": 8000},
         )
@@ -119,20 +123,15 @@ async def main():
         summary = await summarize_tool_outputs(model, response, query)
         rprint(f"\n[dim]Final output: {summary}[/dim]")
 
-        # Disconnect from mcp
-        try:
-            rprint("[yellow]Disconnecting from MCP...[/yellow]")
-            await mcp_toolkit.disconnect()
-            # Add a small delay to allow subprocess to terminate gracefully
-            await asyncio.sleep(0.1)
-            rprint("[green]MCP connection closed[/green]")
-        except Exception as e:
-            rprint(f"[yellow]Warning: Error disconnecting MCP: {e}[/yellow]")
-
     except Exception as e:
         rprint(f"[red]Error: {e}[/red]")
         import traceback
         rprint(f"[dim]{traceback.format_exc()}[/dim]")
+    finally:
+        if mcp_toolkit is not None:
+            rprint("[yellow]Disconnecting from MCP...[/yellow]")
+            await mcp_toolkit.disconnect()
+            rprint("[green]MCP connection closed[/green]")
 
 if __name__ == "__main__":
     asyncio.run(main())
