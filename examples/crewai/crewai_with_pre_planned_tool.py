@@ -18,8 +18,6 @@ if not LINKED_ACCOUNT_OWNER_ID:
 @tool
 def github_star_repository(owner: str, repo: str) -> str:
     """Star a GitHub repository by providing the owner and repo name"""
-    # rprint(Panel("Function Call: github_star_repo", style="bold yellow"))
-    # rprint(f"Parameters: owner = {owner}, repo = {repo}")
     aci = ACI()
 
     result = aci.handle_function_call(
@@ -28,15 +26,11 @@ def github_star_repository(owner: str, repo: str) -> str:
         linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
         format=FunctionDefinitionFormat.ANTHROPIC,
     )
-    # rprint(Panel("Function Call Result", style="bold magenta"))
-    # rprint(result)
     return json.dumps(result)
 
 @tool
 def github_get_user(username: str) -> str:
     """Get a GitHub user by providing the username"""
-    # rprint(Panel("Function Call: github_get_user", style="bold yellow"))
-    # rprint(f"Parameters: username = {username}")
     aci = ACI()
 
     result = aci.handle_function_call(
@@ -45,8 +39,6 @@ def github_get_user(username: str) -> str:
         linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
         format=FunctionDefinitionFormat.ANTHROPIC,
     )
-    # rprint(Panel("Function Call Result", style="bold magenta"))
-    # rprint(result)
     return json.dumps(result)
 
 
