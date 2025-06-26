@@ -7,7 +7,6 @@ from crewai import Agent, Task
 from crewai.tools import tool
 from dotenv import load_dotenv
 from rich import print as rprint
-from rich.panel import Panel
 
 load_dotenv()
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
