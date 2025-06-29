@@ -83,9 +83,6 @@ async def main():
         # Setup gemini model
         model = ModelFactory.create(
             model_platform=ModelPlatformType.GEMINI,
-            # If you'd like to use the new Gemini 2.5 model, 
-            # please ensure you have a paid account and uncomment the following line
-            # model_type="gemini-2.5-pro-preview-05-06",
             model_type="gemini-2.0-flash-001", 
             api_key=os.getenv("GOOGLE_API_KEY"),
             model_config_dict={"temperature": 0.7, "max_tokens": 8000},
