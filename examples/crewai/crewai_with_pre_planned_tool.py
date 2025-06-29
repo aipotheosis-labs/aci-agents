@@ -17,28 +17,35 @@ if not LINKED_ACCOUNT_OWNER_ID:
 @tool
 def github_star_repository(owner: str, repo: str) -> str:
     """Star a GitHub repository by providing the owner and repo name"""
-    aci = ACI()
+    try:
+        aci = ACI()
 
-    result = aci.handle_function_call(
-        "GITHUB__STAR_REPOSITORY",
-        {"path": {"owner": owner, "repo": repo}},
-        linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
-        format=FunctionDefinitionFormat.ANTHROPIC,
-    )
-    return json.dumps(result)
+        result = aci.handle_function_call(
+            "GITHUB__STAR_REPOSITORY",
+            {"path": {"owner": owner, "repo": repo}},
+            linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+            format=FunctionDefinitionFormat.ANTHROPIC,
+        )
+        return json.dumps(result)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
 
 @tool
 def github_get_user(username: str) -> str:
     """Get a GitHub user by providing the username"""
-    aci = ACI()
+    try:
+        aci = ACI()
 
-    result = aci.handle_function_call(
-        "GITHUB__GET_USER",
-        {"path": {"username": username}},
-        linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
-        format=FunctionDefinitionFormat.ANTHROPIC,
-    )
-    return json.dumps(result)
+        result = aci.handle_function_call(
+            "GITHUB__GET_USER",
+            {"path": {"username": username}},
+            linked_account_owner_id=LINKED_ACCOUNT_OWNER_ID,
+            format=FunctionDefinitionFormat.ANTHROPIC,
+        )
+        return json.dumps(result)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
 
 
 def main() -> None:
