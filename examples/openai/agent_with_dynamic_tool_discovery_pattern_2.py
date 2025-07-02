@@ -24,6 +24,8 @@ prompt = (
     "ACI_SEARCH_FUNCTIONS, and ACI_EXECUTE_FUNCTION."
     "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps. Try to limit the number of results per request to 1."
     "Once you have identified the function you need to use, you can use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
+    "IMPORTANT: When calling any function, carefully read the function definition and ensure you provide ALL required parameters with correct names and types. "
+    "Always check the function schema before making function calls to avoid validation errors."
 )
 
 # aipolabs meta functions for the LLM to discover the available executale functions dynamically
@@ -48,7 +50,7 @@ def main() -> None:
                 },
                 {
                     "role": "user",
-                    "content": "Can you use brave search to find top 5 results about aipolabs ACI?",
+                    "content": "Can you use brave search to find top 5 results about aipolabs ACI? Then star the repo https://github.com/aipotheosis-labs/aci",
                 },
             ]
             + chat_history,
