@@ -33,7 +33,7 @@ def main() -> None:
     rprint(Panel("Github star repository function definition", style="bold blue"))
     rprint(github_star_repository_function_definition)
 
-    messages=[
+    messages = [
             {
                 "role": "system",
                 "content": "You are a helpful assistant with access to a variety of tools.",
