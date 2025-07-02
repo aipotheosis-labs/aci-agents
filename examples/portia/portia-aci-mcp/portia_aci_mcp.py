@@ -1,11 +1,10 @@
 import os
 from dotenv import load_dotenv
+from portia import Clarification, ClarificationHandler,ExecutionHooks, InputClarification, Portia,PlanRunState
+from typing import Callable
 from rich import print as rprint 
-from portia import (
-    Portia,
-    PlanRunState
-)
 from config import config, tool_registry
+
 
 """
 Demonstration script for using Portia with ACI Multi-Capability Planner.
@@ -17,14 +16,26 @@ This script shows how to
 
 load_dotenv()
 
+class CLIClarificationHandler(ClarificationHandler):
+    """Handles clarifications by obtaining user input from the CLI."""
+
+    def handle_input_clarification(
+        self,
+        clarification: InputClarification,
+        on_resolution: Callable[[Clarification, object], None],
+        on_error: Callable[[Clarification, object], None],  # noqa: ARG002
+    ) -> None:
+        """Handle a user input clarifications by asking the user for input from the CLI."""
+        user_input = input(f"{clarification.user_guidance}\nPlease enter a value:\n")
+        on_resolution(clarification, user_input)
+
 # config tells the agent to chose and tools consists the mcp tools
-portia_instance = Portia(config=config, tools=tool_registry)
+portia_instance = Portia(config=config, tools=tool_registry, execution_hooks=ExecutionHooks(clarification_handler=CLIClarificationHandler()))
 
-prompt = "search the web for best indian restaurant in NYC"
-
+query = "This is the GitHub project URL: https://github.com/aipotheosis-labs/aci, please obtain detailed information for this project on GitHub, then search the web for more information about this project, ACI.dev, last, generate a comprehensive report based on all the collected data as final output."
 
 try:
-    plan = portia_instance.plan(prompt)
+    plan = portia_instance.plan(query)
     rprint(plan.model_dump_json(indent=2)) # prints out the json object of the plan to run 
 
     plan_run = portia_instance.run_plan(plan)
