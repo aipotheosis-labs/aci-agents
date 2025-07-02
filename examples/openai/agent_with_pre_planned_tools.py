@@ -60,7 +60,7 @@ def main() -> None:
             assistant_message = {
                 "role": "assistant",
                 "content": response.choices[0].message.content,
-                "tool_calls": response.choices[0].message.tool_calls
+                "tool_calls": response.choices[0].message.tool_calls if response.choices[0].message.tool_calls else []
             }
             messages.append(assistant_message)
         except Exception as e:
