@@ -40,7 +40,6 @@ def main() -> None:
             },
             {
                 "role": "user",
-                # "content": "What is aipolabs ACI?",
                 "content": "Star the repo https://github.com/aipotheosis-labs/aci, then search information about ACI.dev.",
             },
     ]
