@@ -15,6 +15,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aci-sdk" },
+    { name = "mistralai" },
 ]
 
 [package.dev-dependencies]
@@ -35,7 +36,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "aci-sdk", specifier = ">=1.0.0b1" }]
+requires-dist = [
+    { name = "aci-sdk", specifier = ">=1.0.0b1" },
+    { name = "mistralai", specifier = ">=1.8.2" },
+]
 
 [package.metadata.requires-dev]
 dev = [
