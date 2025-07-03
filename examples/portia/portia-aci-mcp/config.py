@@ -21,7 +21,6 @@ if not google_api_key_value:
 config = Config.from_default(
     llm_provider=LLMProvider.GOOGLE,
     google_api_key=google_api_key_value,
-    # default_model="google/gemini-2.5-pro-preview-05-06",
     default_model="google/gemini-2.0-flash",
 )
 
@@ -31,10 +30,8 @@ mcp_registry = McpToolRegistry.from_stdio_connection(
     command="uvx",
     args=[
         "aci-mcp", "apps-server",
-        "--apps=SLACK,GITHUB,SEARCH,WEATHER,GMAIL",
-        #"--apps=BRAVE,GITHUB,GMAIL",
+        "--apps=BRAVE,GITHUB,GMAIL",
         # "--linked-account-owner-id= <your-linked-account-owner-id> ", # you can setup your linked acc owner ID at - https://platform.aci.dev/apps
-        "--linked-account-owner-id=yoyo",
     ],
     env=process_env
 )

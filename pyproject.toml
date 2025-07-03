@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aci-sdk>=1.0.0b1",
-    "portia-sdk-python[google]>=0.4.8",
+    "portia-sdk-python[google]>=0.4.6",
 ]
 
 [dependency-groups]
