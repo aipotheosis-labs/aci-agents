@@ -22,8 +22,9 @@ aci = ACI()
 prompt = (
     "You are a helpful assistant with access to a unlimited number of tools via some meta functions: "
     "ACI_SEARCH_FUNCTIONS, and ACI_EXECUTE_FUNCTION."
-    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps. Try to limit the number of results per request to 1."
+    "You can use ACI_SEARCH_FUNCTIONS to find the most relevant functions across all apps. Try to limit the number of results per request to 1."
     "Once you have identified the function you need to use, you can use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
+    "Note: You may need to call ACI_SEARCH_FUNCTIONS multiple times to response the user's request completely."
 )
 
 # aipolabs meta functions for the LLM to discover the available executale functions dynamically
@@ -40,7 +41,7 @@ def main() -> None:
     while True:
         rprint(Panel("Waiting for LLM Output", style="bold blue"))
         response = mistral.chat.complete(
-            model="mistral-large-latest",
+            model="mistral-medium-latest",
             messages=[
                 {
                     "role": "system",
@@ -48,7 +49,7 @@ def main() -> None:
                 },
                 {
                     "role": "user",
-                    "content": "Can you use brave search to find top 5 results about aipolabs ACI?",
+                    "content": "Can you use brave search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci.",
                 },
             ]
             + chat_history,
