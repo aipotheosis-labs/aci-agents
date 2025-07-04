@@ -19,19 +19,11 @@ mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 # gets AIPOLABS_ACI_API_KEY from your environment variables
 aci = ACI()
 
-# prompt = (
-#     "You are a helpful assistant with access to a unlimited number of tools via a meta function: "
-#     "ACI_SEARCH_FUNCTIONS"
-#     "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps."
-#     "Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
-# )
-
 prompt = (
-    "You are a helpful assistant with access to unlimited tools via a meta function: ACI_SEARCH_FUNCTIONS. "
-    "First, analyze the COMPLETE user request and use ACI_SEARCH_FUNCTIONS to search for ALL functions needed to fulfill the entire task."
-    "Then refresh the tools_retrieved list with the search results-new function definitions. "
-    "Next, find and execute the functions you need in the tools_retrieved list one by one. "
-    "Last, summarize the results of the functions you have executed and provide a final answer to the user's question."
+    "You are a helpful assistant with access to a unlimited number of tools via a meta function: "
+    "ACI_SEARCH_FUNCTIONS"
+    "Taking complete user input as parameter value, you can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps."
+    "Once you have identified the functions you need to use, you can refresh the tools list and use them in future tool calls."
 )
 
 # ACI meta functions for the LLM to discover the available executable functions dynamically
@@ -50,7 +42,7 @@ def main() -> None:
     while True:
         rprint(Panel("Waiting for LLM Output", style="bold blue"))
         response = mistral.chat.complete(
-            model="mistral-large-latest",
+            model="mistral-medium-latest",
             messages=[
                 {
                     "role": "system",
