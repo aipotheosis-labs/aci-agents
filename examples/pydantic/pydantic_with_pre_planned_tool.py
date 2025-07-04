@@ -6,6 +6,10 @@ from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from pydantic_ai import Agent
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+
 
 def build_aci_function(
     function_name: str,
@@ -52,7 +56,7 @@ def build_aci_function(
     doc_lines = [description, ""]
     doc_lines.append("Args:")
     doc_lines.append(
-        f"function_parameters (str): JSON string of the function's parameters. The schema for this JSON string is defined in the following JSON schema: {json.dumps(inputs)}"
+        f"    function_parameters (str): JSON string of the function's parameters. The schema for this JSON string is defined in the following JSON schema: {json.dumps(inputs)}"
     )
 
     implementation.__doc__ = "\n".join(doc_lines)
@@ -74,7 +78,7 @@ agent = Agent(
 # define the functions to be used
 aci_functions = [
     "BRAVE_SEARCH__WEB_SEARCH",
-    "GITHUB__STAR_REPOSITORY", 
+    "GITHUB__STAR_REPOSITORY",
 ]
 
 # add the functions to the agent
@@ -87,5 +91,23 @@ for function_name in aci_functions:
         )
     )
 
-result = agent.run_sync("Can you use brave web search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci.")
-print(result)
+result = agent.run_sync(
+    "Can you use brave web search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci."
+)
+
+# Create a rich console for better output formatting
+console = Console()
+
+# Display the result with rich formatting
+console.print(
+    Panel.fit(
+        Markdown(result.output),
+        title="🤖 Agent Result",
+        border_style="blue",
+        padding=(1, 2),
+    )
+)
+
+# Also display some metadata about the result
+console.print(f"\n[bold green]✅ Task completed successfully![/bold green]")
+console.print(f"[dim]Result type: {type(result).__name__}[/dim]")
