@@ -7,7 +7,6 @@ from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
 from pydantic_ai import Agent
 
-
 def build_aci_function(
     function_name: str,
     linked_account_owner_id: str,
@@ -53,7 +52,7 @@ def build_aci_function(
     doc_lines = [description, ""]
     doc_lines.append("Args:")
     doc_lines.append(
-        f"    function_parameters (str): JSON string of the function's parameters. The schema for this JSON string is defined in the following JSON schema: {json.dumps(inputs)}"
+        f"function_parameters (str): JSON string of the function's parameters. The schema for this JSON string is defined in the following JSON schema: {json.dumps(inputs)}"
     )
 
     implementation.__doc__ = "\n".join(doc_lines)
@@ -61,26 +60,32 @@ def build_aci_function(
     return implementation
 
 
-load_dotenv()
+load_dotenv(override=True)
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
-
 agent = Agent(
     "openai:gpt-4o-mini",
     deps_type=str,
-    system_prompt=("You are a helpful assistant."),
+    system_prompt="You are a helpful assistant with access to a variety of tools.",
 )
 
+# define the functions to be used
+aci_functions = [
+    "BRAVE_SEARCH__WEB_SEARCH",
+    "GITHUB__STAR_REPOSITORY", 
+]
 
-agent.tool_plain(
-    build_aci_function(
-        "GITHUB__SEARCH_USERS",
-        LINKED_ACCOUNT_OWNER_ID,
-        FunctionDefinitionFormat.OPENAI,
+# add the functions to the agent
+for function_name in aci_functions:
+    agent.tool_plain(
+        build_aci_function(
+            function_name,
+            LINKED_ACCOUNT_OWNER_ID,
+            FunctionDefinitionFormat.OPENAI,
+        )
     )
-)
 
-result = agent.run_sync("tell me about github user zixuan-x")
+result = agent.run_sync("Can you use brave web search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci.")
 print(result)
