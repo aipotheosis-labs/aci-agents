@@ -109,5 +109,5 @@ console.print(
 )
 
 # Also display some metadata about the result
-console.print(f"\n[bold green]✅ Task completed successfully![/bold green]")
+console.print("\n[bold green]✅ Task completed successfully![/bold green]")
 console.print(f"[dim]Result type: {type(result).__name__}[/dim]")
