@@ -38,21 +38,21 @@ def get_tool(function_name: str, linked_account_owner_id: str) -> FunctionTool:
         description=description,
         params_json_schema=parameters,
         on_invoke_tool=tool_impl,
-        strict_json_schema=True,
+        strict_json_schema=False,  # turn off strict json schema validation to allow for optional parameters
     )
 
 
 github_agent = Agent(
     name="github_agent",
     instructions="You are a helpful assistant that can use available tools to help the user.",
-    tools=[get_tool("GITHUB__STAR_REPOSITORY", LINKED_ACCOUNT_OWNER_ID)],
+    tools=[get_tool("GITHUB__STAR_REPOSITORY", LINKED_ACCOUNT_OWNER_ID), get_tool("BRAVE_SEARCH__WEB_SEARCH", LINKED_ACCOUNT_OWNER_ID)],
 )
 
 
 async def main() -> None:
     result = await Runner.run(
         starting_agent=github_agent,
-        input="Star the repo https://github.com/aipotheosis-labs/aci",
+        input="Can you use brave search to find top 5 results about aipolabs ACI? Then star the repo https://github.com/aipotheosis-labs/aci.",
     )
     print(result)
 
