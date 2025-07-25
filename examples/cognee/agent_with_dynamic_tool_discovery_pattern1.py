@@ -5,6 +5,8 @@ from cognee.api.v1.visualize.visualize import visualize_graph
 from cognee.modules.search.types import SearchType
 import json
 from dotenv import load_dotenv
+from rich import print as rprint
+from rich.panel import Panel
 
 from aci import ACI
 from aci.meta_functions import ACISearchFunctions
@@ -311,6 +313,22 @@ BATCH_SIZE = 10
 DATASET_NAME = "example"
 MODEL_NAME = "gpt-4.1"
 
+# ACI meta functions for the LLM to discover the available executable functions dynamically
+tools_meta = [
+    ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
+]
+# store retrieved function definitions (via meta functions) that will be used in the next iteration,
+# can dynamically append or remove functions from this list
+tools_retrieved: list[dict] = []
+
+prompt = (
+"You are a HR and Talent Management assistant with access to a unlimited number of tools via a meta function: "
+"ACI_SEARCH_FUNCTIONS"
+"You can use ACI_SEARCH_FUNCTIONS to find relevant functions across GMAIL and GOOGLE DOCS."
+"Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
+"You are given a list of candidates and their information as a relevant context. use this context to help you answer the user's question."
+)
+
 async def run_cognify_pipeline(dataset: Dataset, user: User = None):
     data_documents: list[Data] = await get_dataset_data(dataset_id=dataset.id)
 
@@ -346,20 +364,6 @@ async def run_cognify_pipeline(dataset: Dataset, user: User = None):
 
 async def main():
 
-    prompt = (
-    "You are a HR and Talent Management assistant with access to a unlimited number of tools via a meta function: "
-    "ACI_SEARCH_FUNCTIONS"
-    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across GMAIL and GOOGLE DOCS."
-    "Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
-    "You are given a list of candidates and their information as a relevant context. use this context to help you answer the user's question."
-    )
-
-    tools_meta = [
-        ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
-    ]
-
-    tools_retrieved: list[dict] = []
-
     chat_history: list[dict] = []
 
     # Cognee memory pipeline
@@ -381,10 +385,11 @@ async def main():
 
     query = "1. Get information about David Kim 2. Create a new google doc 3. Add the information to google doc with 3 interview questions"
     retrieved_context = await cognee.search(query_type=SearchType.CHUNKS, query_text=query)
-    print(f"\n\nretrieved_context\n\n{retrieved_context}\n\n")
-
+    rprint(Panel(f"\n\nretrieved_context\n\n{retrieved_context}\n\n", style="bold green"))
+    
     while True:
-        print("Waiting for LLM Output")
+
+        rprint(Panel("Waiting for LLM Output", style="bold green"))
         response = openai.chat.completions.create(
             model=MODEL_NAME,
             messages=[
@@ -401,24 +406,22 @@ async def main():
             tools=tools_meta + tools_retrieved,
             parallel_tool_calls=True,
         )
-    
+
     # Process LLM response and potential function call
         content = response.choices[0].message.content
-        print(content)
         tool_call = (
             response.choices[0].message.tool_calls[0]
             if response.choices[0].message.tool_calls
             else None
         )
         if content:
-            print("LLM Message")
-            print(content)
+            rprint(Panel("LLM Message", style="bold green"))
+            rprint(content)
             chat_history.append({"role": "assistant", "content": content})
 
-        # Handle function call if any
         if tool_call:
-            print(f"Function Call: {tool_call.function.name}")
-            print(f"arguments: {tool_call.function.arguments}")
+            rprint(Panel(f"Function Call: {tool_call.function.name}", style="bold yellow"))
+            rprint(Panel(f"arguments: {tool_call.function.arguments}", style="bold yellow"))
 
             chat_history.append({"role": "assistant", "tool_calls": [tool_call]})
             result = aci.handle_function_call(
@@ -432,8 +435,8 @@ async def main():
             if tool_call.function.name == ACISearchFunctions.get_name():
                 tools_retrieved.extend(result)
 
-            print("Function Call Result")
-            print(result)
+            rprint(Panel("Function Call Result", style="bold blue"))
+            rprint(result)
             # Continue loop, feeding the result back to the LLM for further instructions
             chat_history.append(
                 {
@@ -444,7 +447,7 @@ async def main():
             )
         else:
             # If there's no further function call, exit the loop
-            print("Task Completed")
+            rprint(Panel("Task Completed", style="bold green"))
             break
 
 if __name__ == '__main__':
