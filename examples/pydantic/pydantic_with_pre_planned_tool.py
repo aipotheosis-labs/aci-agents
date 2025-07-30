@@ -4,10 +4,12 @@ from typing import Callable
 
 from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
-from crewai import Agent, Task
-from crewai.tools import tool
 from dotenv import load_dotenv
-from rich import print as rprint
+from pydantic_ai import Agent
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+
 
 def build_aci_function(
     function_name: str,
@@ -62,45 +64,50 @@ def build_aci_function(
     return implementation
 
 
-load_dotenv()
+load_dotenv(override=True)
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
+agent = Agent(
+    "openai:gpt-4o-mini",
+    deps_type=str,
+    system_prompt="You are a helpful assistant with access to a variety of tools.",
+)
 
-def main() -> None:
-    agent = Agent(
-        role="Assistant",
-        backstory="You are a helpful assistant that can use available tools to help the user.",
-        goal="Help with user requests",
-        tools=[
-            tool(
-                build_aci_function(
-                    "GITHUB__STAR_REPOSITORY",
-                    LINKED_ACCOUNT_OWNER_ID,
-                    FunctionDefinitionFormat.OPENAI,
-                )
-            ),
-            tool(
-                build_aci_function(
-                    "GITHUB__GET_USER",
-                    LINKED_ACCOUNT_OWNER_ID,
-                    FunctionDefinitionFormat.OPENAI,
-                )
-            ),
-        ],
-        function_calling_llm="gpt-4o-mini",
-        verbose=True,
+# define the functions to be used
+aci_functions = [
+    "BRAVE_SEARCH__WEB_SEARCH",
+    "GITHUB__STAR_REPOSITORY",
+]
+
+# add the functions to the agent
+for function_name in aci_functions:
+    agent.tool_plain(
+        build_aci_function(
+            function_name,
+            LINKED_ACCOUNT_OWNER_ID,
+            FunctionDefinitionFormat.OPENAI,
+        )
     )
 
-    task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aci, and get the user information for the user aipotheosis-labs",
-        expected_output="A natural language summary of both operations: whether the repository was successfully starred and key information about the GitHub user.",
+result = agent.run_sync(
+    "Can you use brave web search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci."
+)
+
+# Create a rich console for better output formatting
+console = Console()
+
+# Display the result with rich formatting
+console.print(
+    Panel.fit(
+        Markdown(result.output),
+        title="🤖 Agent Result",
+        border_style="blue",
+        padding=(1, 2),
     )
+)
 
-    response = agent.execute_task(task)
-    rprint(response)
-
-
-if __name__ == "__main__":
-    main()
+# Also display some metadata about the result
+console.print("\n[bold green]✅ Task completed successfully![/bold green]")
+console.print(f"[dim]Result type: {type(result).__name__}[/dim]")

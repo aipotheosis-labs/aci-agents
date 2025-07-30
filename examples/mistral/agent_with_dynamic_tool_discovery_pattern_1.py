@@ -2,10 +2,10 @@ import json
 import os
 
 from aci import ACI
-from aci.meta_functions import ACISearchFunctions, ACIExecuteFunction
+from aci.meta_functions import ACISearchFunctions
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
-from openai import OpenAI
+from mistralai import Mistral
 from rich import print as rprint
 from rich.panel import Panel
 
@@ -14,25 +14,25 @@ LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
-# gets OPENAI_API_KEY from your environment variables
-openai = OpenAI()
-# gets ACI_API_KEY from your environment variables
+# gets MISTRAL_API_KEY from your environment variables
+mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+# gets AIPOLABS_ACI_API_KEY from your environment variables
 aci = ACI()
 
 prompt = (
-    "You are a helpful assistant with access to a unlimited number of tools via some meta functions: "
-    "ACI_SEARCH_FUNCTIONS, and ACI_EXECUTE_FUNCTION."
-    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps. Try to limit the number of results per request to 1."
-    "Once you have identified the function you need to use, you can use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
-    "IMPORTANT: When calling any function, carefully read the function definition and ensure you provide ALL required parameters with correct names and types. "
-    "Always check the function schema before making function calls to avoid validation errors."
+    "You are a helpful assistant with access to a unlimited number of tools via a meta function: "
+    "ACI_SEARCH_FUNCTIONS"
+    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps."
+    "Once you have identified the functions you need to use, you can append them to the tools list and use them in future tool calls."
 )
 
-# aipolabs meta functions for the LLM to discover the available executale functions dynamically
+# ACI meta functions for the LLM to discover the available executable functions dynamically
 tools_meta = [
     ACISearchFunctions.to_json_schema(FunctionDefinitionFormat.OPENAI),
-    ACIExecuteFunction.to_json_schema(FunctionDefinitionFormat.OPENAI),
 ]
+# store retrieved function definitions (via meta functions) that will be used in the next iteration,
+# can dynamically append or remove functions from this list
+tools_retrieved: list[dict] = []
 
 
 def main() -> None:
@@ -41,8 +41,8 @@ def main() -> None:
 
     while True:
         rprint(Panel("Waiting for LLM Output", style="bold blue"))
-        response = openai.chat.completions.create(
-            model="gpt-4.1",
+        response = mistral.chat.complete(
+            model="mistral-large-latest",
             messages=[
                 {
                     "role": "system",
@@ -50,11 +50,11 @@ def main() -> None:
                 },
                 {
                     "role": "user",
-                    "content": "Can you use brave search to find top 5 results about aipolabs ACI? Then star the repo https://github.com/aipotheosis-labs/aci",
+                    "content": "Can you use brave web search to find top 5 results about aipolabs ACI?",
                 },
             ]
             + chat_history,
-            tools=tools_meta,
+            tools=tools_meta + tools_retrieved,
             # tool_choice="required",  # force the model to generate a tool call
             parallel_tool_calls=False,
         )
@@ -86,6 +86,9 @@ def main() -> None:
                 allowed_apps_only=True,
                 format=FunctionDefinitionFormat.OPENAI,
             )
+            # if the function call is a get, add the retrieved function definition to the tools_retrieved
+            if tool_call.function.name == ACISearchFunctions.get_name():
+                tools_retrieved.extend(result)
 
             rprint(Panel("Function Call Result", style="bold magenta"))
             rprint(result)

@@ -2,10 +2,10 @@ import json
 import os
 
 from aci import ACI
-from aci.meta_functions import ACISearchFunctions, ACIExecuteFunction
+from aci.meta_functions import ACIExecuteFunction, ACISearchFunctions
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
-from openai import OpenAI
+from mistralai import Mistral
 from rich import print as rprint
 from rich.panel import Panel
 
@@ -14,18 +14,17 @@ LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
-# gets OPENAI_API_KEY from your environment variables
-openai = OpenAI()
+# gets MISTRAL_API_KEY from your environment variables
+mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 # gets ACI_API_KEY from your environment variables
 aci = ACI()
 
 prompt = (
     "You are a helpful assistant with access to a unlimited number of tools via some meta functions: "
     "ACI_SEARCH_FUNCTIONS, and ACI_EXECUTE_FUNCTION."
-    "You can use ACI_SEARCH_FUNCTIONS to find relevant functions across all apps. Try to limit the number of results per request to 1."
+    "You can use ACI_SEARCH_FUNCTIONS to find the most relevant functions across all apps. Try to limit the number of results per request to 1."
     "Once you have identified the function you need to use, you can use ACI_EXECUTE_FUNCTION to execute the function provided you have the correct input arguments."
-    "IMPORTANT: When calling any function, carefully read the function definition and ensure you provide ALL required parameters with correct names and types. "
-    "Always check the function schema before making function calls to avoid validation errors."
+    "Note: You may need to call ACI_SEARCH_FUNCTIONS multiple times to response the user's request completely."
 )
 
 # aipolabs meta functions for the LLM to discover the available executale functions dynamically
@@ -41,8 +40,8 @@ def main() -> None:
 
     while True:
         rprint(Panel("Waiting for LLM Output", style="bold blue"))
-        response = openai.chat.completions.create(
-            model="gpt-4.1",
+        response = mistral.chat.complete(
+            model="mistral-medium-latest",
             messages=[
                 {
                     "role": "system",
@@ -50,7 +49,7 @@ def main() -> None:
                 },
                 {
                     "role": "user",
-                    "content": "Can you use brave search to find top 5 results about aipolabs ACI? Then star the repo https://github.com/aipotheosis-labs/aci",
+                    "content": "Can you use brave search to find top 5 results about aipolabs ACI? then help me star the repo https://github.com/aipotheosis-labs/aci.",
                 },
             ]
             + chat_history,

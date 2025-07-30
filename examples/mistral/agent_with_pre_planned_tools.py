@@ -4,17 +4,18 @@ import os
 from aci import ACI
 from aci.types.functions import FunctionDefinitionFormat
 from dotenv import load_dotenv
-from openai import OpenAI
+from mistralai import Mistral
 from rich import print as rprint
 from rich.panel import Panel
 
-load_dotenv()
+load_dotenv(override=True)
 LINKED_ACCOUNT_OWNER_ID = os.getenv("LINKED_ACCOUNT_OWNER_ID", "")
 if not LINKED_ACCOUNT_OWNER_ID:
     raise ValueError("LINKED_ACCOUNT_OWNER_ID is not set")
 
-# gets OPENAI_API_KEY from your environment variables
-openai = OpenAI()
+
+# gets MISTRAL_API_KEY from your environment variables
+mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 # gets ACI_API_KEY from your environment variables
 aci = ACI()
 
@@ -33,14 +34,14 @@ def main() -> None:
     rprint(Panel("Github star repository function definition", style="bold blue"))
     rprint(github_star_repository_function_definition)
 
-    messages = [
+    messages=[
             {
                 "role": "system",
-                "content": "You are a helpful assistant with access to a variety of tools.",
+                "content": "You are a helpful assistant with access to a variety of tools and has the ability to respond to the user's request based on results of all executed tools with natural language.",
             },
             {
                 "role": "user",
-                "content": "Star the repo https://github.com/aipotheosis-labs/aci, then search information about ACI.dev.",
+                "content": "Can you use brave web search to find top 5 results about aipolabs ACI? then please help me star the repo https://github.com/aipotheosis-labs/aci.",
             },
     ]
     # Loop until no tool_call (with max iterations for safety)
@@ -50,34 +51,35 @@ def main() -> None:
         iteration_count += 1
         # Call model
         try:
-            response = openai.chat.completions.create(
-                model="gpt-4o",
+            response = mistral.chat.complete(
+                # Note: This example uses 'mistral-large-latest' which requires a paid Mistral AI plan.
+                # For free tier usage, please replace with 'mistral-small-latest' or other available free models.
+                model="mistral-large-latest",
                 messages=messages,
-                tools=[brave_search_function_definition, github_star_repository_function_definition],
-                tool_choice="auto",  # let the model decide when to use tools
+                tools=[brave_search_function_definition,github_star_repository_function_definition],
+                tool_choice="auto",   # let the model decide when to use tools
             )
+            # Get tool calls
+            tool_calls = response.choices[0].message.tool_calls if response.choices[0].message.tool_calls else []
             # Convert ChatCompletionMessage to dictionary format
             assistant_message = {
                 "role": "assistant",
                 "content": response.choices[0].message.content,
-                "tool_calls": response.choices[0].message.tool_calls if response.choices[0].message.tool_calls else []
+                "tool_calls": tool_calls
             }
             messages.append(assistant_message)
-        except Exception as e:
+        except Exception as e:  
             rprint(Panel(f"Error calling LLM: {e}", style="bold red"))
             break
         
-        # Get tool calls
-        tool_calls = response.choices[0].message.tool_calls if response.choices[0].message.tool_calls else []
         if tool_calls:
             # Execute tool calls one by one
             for tool_call in tool_calls:
                 tool_name = tool_call.function.name
                 tool_args = tool_call.function.arguments
-                
-                rprint(Panel(f"Tool call: {tool_name}", style="bold yellow"))
+                rprint(Panel(f"Tool call: {tool_name}", style="bold green"))
                 rprint(f"arguments: {tool_args}")
-
+            
                 # submit the selected function and its arguments to aipolabs ACI backend for execution
                 try:
                     result = aci.handle_function_call(
@@ -98,7 +100,6 @@ def main() -> None:
                 except Exception as e:
                     result = f"Error executing tool {tool_name}: {e}"
                     rprint(Panel(f"Tool execution error: {e}", style="bold red"))
-                
                 rprint(Panel("Function Call Result", style="bold yellow"))
                 rprint(result)
 
