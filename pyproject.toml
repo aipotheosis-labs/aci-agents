@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "aci-sdk>=1.0.0b1",
+    "camel>=0.1.2",
     "mistralai>=1.8.2",
 ]
 

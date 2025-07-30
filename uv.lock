@@ -15,6 +15,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aci-sdk" },
+    { name = "camel" },
     { name = "mistralai" },
 ]
 
@@ -41,6 +42,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aci-sdk", specifier = ">=1.0.0b1" },
+    { name = "camel", specifier = ">=0.1.2" },
     { name = "mistralai", specifier = ">=1.8.2" },
 ]
 
@@ -514,6 +516,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6c/81/3747dad6b14fa2cf53fcf10548cf5aea6913e96fab41a3c198676f8948a5/cachetools-5.5.2.tar.gz", hash = "sha256:1a661caa9175d26759571b2e19580f9d6393969e5dfca11fdb1f947a23e640d4", size = 28380 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/72/76/20fa66124dbe6be5cafeb312ece67de6b61dd91a0247d1ea13db4ebb33c2/cachetools-5.5.2-py3-none-any.whl", hash = "sha256:d26a22bcc62eb95c3beabd9f1ee5e820d3d2704fe2967cbe350e20c8ffcd3f0a", size = 10080 },
+]
+
+[[package]]
+name = "camel"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9b/3a/6f52fe0ab7a02a9765e5fc79beaaa9b271fee29d483df150feb548774882/camel-0.1.2.tar.gz", hash = "sha256:f61080abbdd68ad40bfe4ecaee9ea34ff07344ad98d1f2041f0ccccbcf42f271", size = 7975 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/eb/a2dac5267704c2d83f7a3ebd033605b593270c500f7407e84fdc89b7452d/camel-0.1.2-py2.py3-none-any.whl", hash = "sha256:a297440c3f2c41603bad63275e33f26f972329a501a7cb80e6e4934403ccf988", size = 23063 },
 ]
 
 [[package]]

@@ -9,7 +9,6 @@ from crewai.tools import tool
 from dotenv import load_dotenv
 from rich import print as rprint
 
-
 def build_aci_function(
     function_name: str,
     linked_account_owner_id: str,
@@ -81,15 +80,22 @@ def main() -> None:
                     LINKED_ACCOUNT_OWNER_ID,
                     FunctionDefinitionFormat.OPENAI,
                 )
-            )
+            ),
+            tool(
+                build_aci_function(
+                    "GITHUB__GET_USER",
+                    LINKED_ACCOUNT_OWNER_ID,
+                    FunctionDefinitionFormat.OPENAI,
+                )
+            ),
         ],
         function_calling_llm="gpt-4o-mini",
         verbose=True,
     )
 
     task = Task(
-        description="Star the repo https://github.com/aipotheosis-labs/aci",
-        expected_output="The result of the star operation from the GitHub API",
+        description="Star the repo https://github.com/aipotheosis-labs/aci, and get the user information for the user aipotheosis-labs",
+        expected_output="A natural language summary of both operations: whether the repository was successfully starred and key information about the GitHub user.",
     )
 
     response = agent.execute_task(task)
