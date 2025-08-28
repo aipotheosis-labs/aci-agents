@@ -1,0 +1,7 @@
+fastapi
+python-dotenv
+pydantic
+rich
+nest_asyncio
+uvicorn
+camel-ai
